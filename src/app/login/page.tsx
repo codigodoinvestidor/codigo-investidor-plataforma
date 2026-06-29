@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogIn } from "lucide-react";
+import { LogIn, TrendingUp, ShieldCheck, PieChart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { AuthBrandingPanel } from "@/components/auth-branding-panel";
+
+const BENEFICIOS = [
+  { icone: TrendingUp, texto: "Renda, despesas e patrimônio" },
+  { icone: PieChart, texto: "Alocação e gastos por categoria" },
+  { icone: ShieldCheck, texto: "Seus dados, protegidos e só seus" },
+];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,22 +39,19 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen bg-background">
-      <AuthBrandingPanel />
-
-      <div className="flex flex-1 items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden">
-            <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado">
-              Codigo do Investidor
-            </p>
-          </div>
-
-          <h2 className="font-display text-2xl text-foreground">Bem-vindo de volta</h2>
-          <p className="mt-1 mb-8 text-sm text-foreground/60">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado">
+            Código do Investidor
+          </p>
+          <h2 className="mt-3 font-display text-2xl text-foreground">Bem-vindo de volta</h2>
+          <p className="mt-1 text-sm text-foreground/60">
             Entre para acessar seu painel financeiro.
           </p>
+        </div>
 
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-6">
           <form onSubmit={entrar} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground/80">
@@ -94,13 +96,25 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-foreground/60">
+          <p className="mt-6 text-center text-sm text-foreground/60">
             Ainda não tem conta?{" "}
             <Link href="/cadastro" className="font-medium text-dourado hover:underline">
               Cadastre-se
             </Link>
           </p>
         </div>
+
+        <ul className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
+          {BENEFICIOS.map(({ icone: Icone, texto }) => (
+            <li
+              key={texto}
+              className="flex items-center gap-2 text-xs text-foreground/50 sm:flex-col sm:text-center"
+            >
+              <Icone size={14} className="shrink-0 text-dourado" />
+              <span>{texto}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </main>
   );

@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserPlus, MailCheck } from "lucide-react";
+import { UserPlus, MailCheck, TrendingUp, ShieldCheck, PieChart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { AuthBrandingPanel } from "@/components/auth-branding-panel";
+
+const BENEFICIOS = [
+  { icone: TrendingUp, texto: "Renda, despesas e patrimônio" },
+  { icone: PieChart, texto: "Alocação e gastos por categoria" },
+  { icone: ShieldCheck, texto: "Seus dados, protegidos e só seus" },
+];
 
 export default function CadastroPage() {
   const router = useRouter();
@@ -46,41 +51,35 @@ export default function CadastroPage() {
 
   if (sucesso) {
     return (
-      <main className="flex min-h-screen bg-background">
-        <AuthBrandingPanel />
-        <div className="flex flex-1 items-center justify-center px-6 py-16">
-          <div className="card max-w-sm p-8 text-center">
-            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-dourado/15 text-dourado">
-              <MailCheck size={22} />
-            </span>
-            <h1 className="mb-2 font-display text-xl text-foreground">Quase lá!</h1>
-            <p className="text-sm leading-relaxed text-foreground/70">
-              Enviamos um e-mail de confirmação para <strong>{email}</strong>. Confirme para
-              poder entrar na plataforma.
-            </p>
-          </div>
+      <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+        <div className="card max-w-sm p-8 text-center">
+          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-dourado/15 text-dourado">
+            <MailCheck size={22} />
+          </span>
+          <h1 className="mb-2 font-display text-xl text-foreground">Quase lá!</h1>
+          <p className="text-sm leading-relaxed text-foreground/70">
+            Enviamos um e-mail de confirmação para <strong>{email}</strong>. Confirme para
+            poder entrar na plataforma.
+          </p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen bg-background">
-      <AuthBrandingPanel />
-
-      <div className="flex flex-1 items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden">
-            <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado">
-              Código do Investidor
-            </p>
-          </div>
-
-          <h2 className="font-display text-2xl text-foreground">Criar conta</h2>
-          <p className="mt-1 mb-8 text-sm text-foreground/60">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado">
+            Código do Investidor
+          </p>
+          <h2 className="mt-3 font-display text-2xl text-foreground">Criar conta</h2>
+          <p className="mt-1 text-sm text-foreground/60">
             Comece a organizar sua vida financeira em minutos.
           </p>
+        </div>
 
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-6">
           <form onSubmit={cadastrar} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground/80">Nome</label>
@@ -138,13 +137,25 @@ export default function CadastroPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-foreground/60">
+          <p className="mt-6 text-center text-sm text-foreground/60">
             Já tem conta?{" "}
             <Link href="/login" className="font-medium text-dourado hover:underline">
               Entrar
             </Link>
           </p>
         </div>
+
+        <ul className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
+          {BENEFICIOS.map(({ icone: Icone, texto }) => (
+            <li
+              key={texto}
+              className="flex items-center gap-2 text-xs text-foreground/50 sm:flex-col sm:text-center"
+            >
+              <Icone size={14} className="shrink-0 text-dourado" />
+              <span>{texto}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </main>
   );
