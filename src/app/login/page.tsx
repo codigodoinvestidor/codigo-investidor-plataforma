@@ -41,7 +41,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="mb-8 lg:hidden">
             <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado">
-              Código do Investidor
+              Codigo do Investidor
             </p>
           </div>
 
