@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f6f3;
+  --foreground: #0a0f1e;
+  --superficie: #ffffff;
+  --borda: rgba(10, 15, 30, 0.1);
+  --dourado: #c79a2e;
+  --dourado-claro: #e8c659;
+  --navy: #0a0f1e;
+  --navy-suave: #131c33;
+}
+
+.dark {
+  --background: #070b16;
+  --foreground: #f1ede1;
+  --superficie: #11192c;
+  --borda: rgba(212, 175, 55, 0.14);
+  --dourado: #d4af37;
+  --dourado-claro: #f0d878;
+  --navy: #0a0f1e;
+  --navy-suave: #0d1426;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-superficie: var(--superficie);
+  --color-borda: var(--borda);
+  --color-dourado: var(--dourado);
+  --color-dourado-claro: var(--dourado-claro);
+  --color-navy: var(--navy);
+  --color-navy-suave: var(--navy-suave);
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(circle at 12% -10%, color-mix(in srgb, var(--dourado) 10%, transparent), transparent 45%),
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--dourado) 6%, transparent), transparent 40%);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+.card {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(10, 15, 30, 0.04), 0 12px 32px -16px rgba(10, 15, 30, 0.18);
+}
+
+.dark .card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+}
+
+.input-base {
+  width: 100%;
+  border-radius: 0.625rem;
+  border: 1px solid var(--borda);
+  background: color-mix(in srgb, var(--superficie) 60%, transparent);
+  padding: 0.625rem 0.875rem;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-base:focus {
+  border-color: var(--dourado);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dourado) 18%, transparent);
+}
+
+.btn-dourado {
+  background: linear-gradient(135deg, var(--dourado-claro), var(--dourado));
+  color: var(--navy);
+  font-weight: 600;
+  border-radius: 0.625rem;
+  padding: 0.65rem 1rem;
+  transition: filter 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--dourado) 60%, transparent);
+}
+
+.btn-dourado:hover {
+  filter: brightness(1.05);
+}
+
+.btn-dourado:active {
+  transform: translateY(1px);
+}
+
+.scrollbar-fina::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-fina::-webkit-scrollbar-thumb {
+  background: var(--borda);
+  border-radius: 999px;
 }
