@@ -5,10 +5,67 @@ import { Upload, X } from "lucide-react";
 
 type Props = { onSuccess?: () => void };
 
-async function xlsxParaCsv(file: File): Promise<string> {
-  const XLSX = await import("xlsx");
-  const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type: "array", cellDates: true });
+type LancamentoImport = {
+  tipo: "COMPRA" | "VENDA";
+  ticker: string;
+  nome: string | null;
+  quantidade: number;
+  precoUnitario: number;
+  valorTotal: number;
+  dataOperacao: string;
+  corretora: string | null;
+};
+
+// Detecta se é o relatório consolidado de posição (tem aba "Posição - Ações")
+function ehRelatorioConsolidado(sheetNames: string[]): boolean {
+  return sheetNames.some((n) => n.toLowerCase().includes("posição") || n.toLowerCase().includes("posicao"));
+}
+
+// Lê posições do relatório consolidado e converte em lançamentos de COMPRA
+async function lerPosicaoComoLancamentos(buf: ArrayBuffer, XLSX: typeof import("xlsx")): Promise<LancamentoImport[]> {
+  const wb = XLSX.read(buf, { type: "array" });
+  const hoje = new Date().toISOString().slice(0, 10);
+  const lancamentos: LancamentoImport[] = [];
+
+  const abas = [
+    { nome: "Posição - Ações", corretora: null },
+    { nome: "Posição - ETF", corretora: null },
+    { nome: "Posição - Fundos", corretora: null },
+  ];
+
+  for (const { nome: abaNome } of abas) {
+    const ws = wb.Sheets[abaNome];
+    if (!ws) continue;
+    const rows = XLSX.utils.sheet_to_json<(string | number)[]>(ws, { header: 1, defval: "" });
+    for (const row of rows.slice(1)) {
+      const ticker = String(row[3] ?? "").trim().toUpperCase();
+      if (!ticker || ticker.length < 4) continue;
+      const quantidade = Number(row[8]);
+      if (!quantidade || quantidade <= 0) continue;
+      const preco = Number(row[12]);
+      if (!preco || preco <= 0) continue;
+      const produtoRaw = String(row[0] ?? "").trim();
+      const nomeParts = produtoRaw.split(" - ");
+      const nome = nomeParts.length > 1 ? nomeParts.slice(1).join(" - ").trim() : produtoRaw;
+      const instituicao = String(row[1] ?? "").trim() || null;
+      lancamentos.push({
+        tipo: "COMPRA",
+        ticker,
+        nome,
+        quantidade,
+        precoUnitario: preco,
+        valorTotal: quantidade * preco,
+        dataOperacao: hoje,
+        corretora: instituicao,
+      });
+    }
+  }
+  return lancamentos;
+}
+
+// Lê arquivo de negociações (CSV ou XLSX com formato de negociações)
+async function lerNegociacoes(buf: ArrayBuffer, XLSX: typeof import("xlsx")): Promise<string> {
+  const wb = XLSX.read(buf, { type: "array" });
   const ws = wb.Sheets[wb.SheetNames[0]];
   return XLSX.utils.sheet_to_csv(ws, { FS: ";" });
 }
@@ -25,21 +82,41 @@ export function ImportarB3Modal({ onSuccess }: Props) {
     setResultado(null);
     setImportando(true);
     try {
-      let csv: string;
-      if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
-        csv = await xlsxParaCsv(file);
+      const isXlsx = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
+
+      if (isXlsx) {
+        const XLSX = await import("xlsx");
+        const buf = await file.arrayBuffer();
+        const wb = XLSX.read(buf, { type: "array" });
+
+        if (ehRelatorioConsolidado(wb.SheetNames)) {
+          // Relatório de posição → converte para lançamentos de COMPRA
+          const lancamentos = await lerPosicaoComoLancamentos(buf, XLSX);
+          if (lancamentos.length === 0) {
+            setErro("Nenhum ativo encontrado no arquivo.");
+            return;
+          }
+          // Envia em bulk para a API
+          const res = await fetch("/api/lancamentos-ativos/importar-posicao", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lancamentos }),
+          });
+          const data = await res.json();
+          if (!res.ok) { setErro(data.erro ?? "Erro ao importar."); return; }
+          setResultado(`${data.importados} posição(ões) importada(s) como Compra.`);
+          onSuccess?.();
+          return;
+        }
+
+        // Arquivo de negociações em XLSX → converte para CSV e usa parser existente
+        const csv = await lerNegociacoes(buf, XLSX);
+        await enviarCsv(csv);
       } else {
-        csv = await file.text();
+        // CSV direto
+        const csv = await file.text();
+        await enviarCsv(csv);
       }
-      const res = await fetch("/api/lancamentos-ativos/importar-b3", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setErro(data.erro ?? "Erro ao importar."); return; }
-      setResultado(`${data.importados} operação(ões) importada(s) com sucesso.`);
-      onSuccess?.();
     } catch {
       setErro("Erro ao ler o arquivo. Tente novamente.");
     } finally {
@@ -47,9 +124,22 @@ export function ImportarB3Modal({ onSuccess }: Props) {
     }
   }
 
+  async function enviarCsv(csv: string) {
+    const res = await fetch("/api/lancamentos-ativos/importar-b3", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setErro(data.erro ?? "Erro ao importar."); return; }
+    setResultado(`${data.importados} operação(ões) importada(s) com sucesso.`);
+    onSuccess?.();
+  }
+
   function onArquivo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) processar(file);
+    e.target.value = "";
   }
 
   function onDrop(e: React.DragEvent) {
@@ -57,6 +147,8 @@ export function ImportarB3Modal({ onSuccess }: Props) {
     const file = e.dataTransfer.files?.[0];
     if (file) processar(file);
   }
+
+  function fechar() { setAberto(false); setResultado(null); setErro(null); }
 
   if (!aberto) {
     return (
@@ -72,19 +164,15 @@ export function ImportarB3Modal({ onSuccess }: Props) {
       <div className="w-full max-w-md rounded-2xl border border-borda bg-background p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg text-foreground">Importar da B3</h2>
-          <button onClick={() => { setAberto(false); setResultado(null); setErro(null); }} className="text-foreground/40 hover:text-foreground">
-            <X size={20} />
-          </button>
+          <button onClick={fechar} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
         </div>
 
         <div className="mb-4 rounded-lg bg-foreground/5 p-3 text-xs text-foreground/60 space-y-1">
-          <p className="font-medium text-foreground/80">Como exportar da B3:</p>
-          <ol className="list-decimal list-inside space-y-0.5">
-            <li>Acesse <span className="text-dourado">investidor.b3.com.br</span></li>
-            <li>Extratos e Informativos → Negociações</li>
-            <li>Selecione o período e clique em "Exportar"</li>
-            <li>Faça o upload do arquivo CSV abaixo</li>
-          </ol>
+          <p className="font-medium text-foreground/80">Arquivos aceitos:</p>
+          <ul className="list-disc list-inside space-y-0.5">
+            <li><span className="text-foreground/80">Relatório Consolidado</span> — posições viram lançamentos de Compra</li>
+            <li><span className="text-foreground/80">Extrato de Negociações</span> — importa compras e vendas com data</li>
+          </ul>
         </div>
 
         <div
