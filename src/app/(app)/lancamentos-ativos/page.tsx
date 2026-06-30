@@ -17,7 +17,7 @@ export default async function LancamentosAtivosPage() {
     quantidade: l.quantidade.toString(),
     precoUnitario: l.precoUnitario.toString(),
     valorTotal: l.valorTotal.toString(),
-    dataOperacao: l.dataOperacao.toISOString(),
+    dataOperacao: new Date(l.dataOperacao).toISOString(),
     corretora: l.corretora ?? null,
   }));
   return <LancamentosAtivosContent initialData={initialData} />;

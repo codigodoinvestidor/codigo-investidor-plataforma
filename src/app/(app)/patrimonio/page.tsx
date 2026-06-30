@@ -12,7 +12,7 @@ export default async function PatrimonioPage() {
     nome: a.nome,
     quantidade: a.quantidade.toString(),
     valorCompraUnitario: a.valorCompraUnitario.toString(),
-    dataCompra: a.dataCompra.toISOString(),
+    dataCompra: new Date(a.dataCompra).toISOString(),
     percentualIdeal: a.percentualIdeal?.toString() ?? null,
   }));
   return <PatrimonioContent initialData={initialData} />;

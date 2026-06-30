@@ -14,8 +14,8 @@ export default async function ProventosPage() {
     ticker: p.ticker,
     tipoPagamento: p.tipoPagamento,
     valorTotal: p.valorTotal.toString(),
-    dataCom: p.dataCom ? p.dataCom.toISOString() : null,
-    dataPagamento: p.dataPagamento.toISOString(),
+    dataCom: p.dataCom ? new Date(p.dataCom).toISOString() : null,
+    dataPagamento: new Date(p.dataPagamento).toISOString(),
   }));
 
   const initialTickers = ativos.map((a) => a.ticker).filter(Boolean) as string[];
