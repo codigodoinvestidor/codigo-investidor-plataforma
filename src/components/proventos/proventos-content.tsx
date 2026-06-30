@@ -37,10 +37,17 @@ function Skeleton() {
   );
 }
 
-export function ProventosContent() {
+export function ProventosContent({
+  initialProventos,
+  initialTickers,
+}: {
+  initialProventos?: ProventoApi[];
+  initialTickers?: string[];
+}) {
   const { data: proventos, loading, refresh: recarregarProventos } = useCachedFetch<ProventoApi[]>(
     "proventos",
-    async () => { const r = await fetch("/api/proventos"); return r.json(); }
+    async () => { const r = await fetch("/api/proventos"); return r.json(); },
+    initialProventos
   );
   const { data: ativos, refresh: recarregarAtivos } = useCachedFetch<AtivoApi[]>(
     "ativos",
@@ -48,8 +55,10 @@ export function ProventosContent() {
   );
 
   const tickers = useMemo(
-    () => (ativos ?? []).map((a) => a.ticker).filter(Boolean) as string[],
-    [ativos]
+    () => ativos
+      ? ativos.map((a) => a.ticker).filter(Boolean) as string[]
+      : (initialTickers ?? []),
+    [ativos, initialTickers]
   );
 
   const carregar = useCallback(async () => {

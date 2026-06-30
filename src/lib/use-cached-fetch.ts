@@ -2,8 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function useCachedFetch<T>(key: string, fetcher: () => Promise<T>) {
+export function useCachedFetch<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  initialData?: T
+) {
   const [data, setData] = useState<T | null>(() => {
+    // 1. usa dado do servidor (primeira renderização)
+    if (initialData !== undefined) return initialData;
+    // 2. usa cache do sessionStorage (troca de aba)
     if (typeof window === "undefined") return null;
     try {
       const raw = sessionStorage.getItem(key);
@@ -12,12 +19,12 @@ export function useCachedFetch<T>(key: string, fetcher: () => Promise<T>) {
       return null;
     }
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(data === null);
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
 
   const load = useCallback(async () => {
-    setLoading(true);
+    if (data === null) setLoading(true);
     try {
       const fresh = await fetcherRef.current();
       setData(fresh);
@@ -25,12 +32,18 @@ export function useCachedFetch<T>(key: string, fetcher: () => Promise<T>) {
     } finally {
       setLoading(false);
     }
-  }, [key]);
+  }, [key, data]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    // Se já temos dados do servidor, só atualiza sessionStorage sem mostrar loading
+    if (initialData !== undefined) {
+      sessionStorage.setItem(key, JSON.stringify(initialData));
+      return;
+    }
+    // Caso contrário, busca normalmente
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // loading só é true na primeira visita (sem cache)
-  const isFirstLoad = loading && data === null;
-
-  return { data, loading: isFirstLoad, refresh: load };
+  return { data, loading, refresh: load };
 }

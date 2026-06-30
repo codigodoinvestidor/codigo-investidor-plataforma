@@ -37,10 +37,11 @@ function Skeleton() {
   );
 }
 
-export function DashboardContent() {
+export function DashboardContent({ initialData }: { initialData?: Lancamento[] }) {
   const { data: lancamentos, loading, refresh: carregar } = useCachedFetch<Lancamento[]>(
     "lancamentos",
-    async () => { const r = await fetch("/api/lancamentos"); return r.json(); }
+    async () => { const r = await fetch("/api/lancamentos"); return r.json(); },
+    initialData
   );
 
   if (loading || !lancamentos) return <Skeleton />;

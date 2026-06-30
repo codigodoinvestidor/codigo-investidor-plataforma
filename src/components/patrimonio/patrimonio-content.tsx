@@ -40,10 +40,11 @@ function Skeleton() {
   );
 }
 
-export function PatrimonioContent() {
+export function PatrimonioContent({ initialData }: { initialData?: AtivoApi[] }) {
   const { data: ativos, loading, refresh: recarregarAtivos } = useCachedFetch<AtivoApi[]>(
     "ativos",
-    async () => { const r = await fetch("/api/ativos"); return r.json(); }
+    async () => { const r = await fetch("/api/ativos"); return r.json(); },
+    initialData
   );
   const { data: cotacoesData, refresh: recarregarCotacoes } = useCachedFetch<CotacoesApi>(
     "cotacoes",
