@@ -1,9 +1,10 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { buscarCotacoes } from "@/lib/brapi";
 
 const CACHE_VALIDO_MS = 15 * 60 * 1000;
 
-export async function atualizarCotacoesDesatualizadas() {
+async function _atualizarCotacoesDesatualizadas() {
   const ativos = await prisma.ativo.findMany({
     where: { ticker: { not: null } },
     select: { ticker: true },
@@ -48,6 +49,12 @@ export async function atualizarCotacoesDesatualizadas() {
     console.error("Falha ao atualizar cotações:", erro);
   }
 }
+
+export const atualizarCotacoesDesatualizadas = unstable_cache(
+  _atualizarCotacoesDesatualizadas,
+  ["cotacoes-update"],
+  { revalidate: 60 }
+);
 
 export type CotacaoCache = { preco: number; variacaoDia: number | null };
 

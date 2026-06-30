@@ -14,9 +14,10 @@ import { getAtivos } from "@/lib/queries";
 
 export default async function PatrimonioPage() {
   const user = await getUser();
-  const ativos = await getAtivos(user!.id);
-
-  await atualizarCotacoesDesatualizadas();
+  const [ativos] = await Promise.all([
+    getAtivos(user!.id),
+    atualizarCotacoesDesatualizadas(),
+  ]);
 
   const tickers = ativos.map((a) => a.ticker).filter((t): t is string => Boolean(t));
   const cotacoesCache = await obterCotacoesEmCache(tickers);
