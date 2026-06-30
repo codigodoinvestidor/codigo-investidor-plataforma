@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { TooltipEscuro } from "@/components/tooltip-escuro";
 
 type Ponto = { mes: string; total: number };
 
@@ -25,11 +26,7 @@ export function GraficoEvolucaoProventos({ dados }: { dados: Ponto[] }) {
           tickFormatter={(v: number) => `R$${v}`}
           width={56}
         />
-        <Tooltip
-          formatter={(value) =>
-            Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-          }
-        />
+        <Tooltip content={<TooltipEscuro formatter={(v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />} />
         <Bar dataKey="total" name="Proventos" fill="#d4af37" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

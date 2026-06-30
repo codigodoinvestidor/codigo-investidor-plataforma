@@ -7,19 +7,89 @@ import { ImportarB3Modal } from "./importar-b3-modal";
 import { ListaLancamentosAtivos } from "./lista-lancamentos-ativos";
 import type { LancamentoAtivoItem } from "./lista-lancamentos-ativos";
 
-type Props = { initialData?: LancamentoAtivoItem[] };
+export type AtivoPatrimonioItem = {
+  id: string;
+  ticker: string;
+  nome: string;
+  tipo: string;
+  quantidade: string;
+  valorCompraUnitario: string;
+  dataCompra: string;
+};
 
-export function LancamentosAtivosContent({ initialData }: Props) {
+type Props = {
+  initialLancamentos?: LancamentoAtivoItem[];
+  initialAtivos?: AtivoPatrimonioItem[];
+};
+
+const fmt = (v: string | number) =>
+  Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+function SecaoPatrimonio({ ativos }: { ativos: AtivoPatrimonioItem[] }) {
+  if (ativos.length === 0) return null;
+  return (
+    <div className="card p-6">
+      <h2 className="mb-1 font-display text-lg text-foreground">Posição atual (Patrimônio)</h2>
+      <p className="mb-4 text-sm text-foreground/50">Ativos cadastrados diretamente no Patrimônio.</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-borda text-xs text-foreground/40">
+              <th className="pb-2 text-left">Ticker</th>
+              <th className="pb-2 text-left">Nome</th>
+              <th className="pb-2 text-left">Tipo</th>
+              <th className="pb-2 text-right">Qtd</th>
+              <th className="pb-2 text-right">Preço compra</th>
+              <th className="pb-2 text-right">Total</th>
+              <th className="pb-2 text-left">Data compra</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-borda">
+            {ativos.map((a) => {
+              const total = Number(a.quantidade) * Number(a.valorCompraUnitario);
+              return (
+                <tr key={a.id}>
+                  <td className="py-2.5 pr-3 font-mono font-semibold text-foreground">{a.ticker}</td>
+                  <td className="py-2.5 pr-3 text-foreground/70">{a.nome}</td>
+                  <td className="py-2.5 pr-3">
+                    <span className="rounded-full bg-dourado/10 px-2 py-0.5 text-xs text-dourado">{a.tipo}</span>
+                  </td>
+                  <td className="py-2.5 pr-3 text-right text-foreground/70">{Number(a.quantidade).toLocaleString("pt-BR")}</td>
+                  <td className="py-2.5 pr-3 text-right text-foreground/70">{fmt(a.valorCompraUnitario)}</td>
+                  <td className="py-2.5 pr-3 text-right font-medium text-foreground">{fmt(total)}</td>
+                  <td className="py-2.5 text-foreground/50">{new Date(a.dataCompra).toLocaleDateString("pt-BR")}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export function LancamentosAtivosContent({ initialLancamentos, initialAtivos }: Props) {
   const [mostrarForm, setMostrarForm] = useState(false);
 
-  const { data, loading, refresh } = useCachedFetch<LancamentoAtivoItem[]>(
+  const { data: lancamentos, loading, refresh } = useCachedFetch<LancamentoAtivoItem[]>(
     "lancamentos-ativos",
     async () => {
       const res = await fetch("/api/lancamentos-ativos");
       if (!res.ok) throw new Error("Erro ao carregar");
       return res.json();
     },
-    initialData
+    initialLancamentos
+  );
+
+  const { data: ativos } = useCachedFetch<AtivoPatrimonioItem[]>(
+    "ativos-patrimonio-lancamentos",
+    async () => {
+      const res = await fetch("/api/ativos");
+      if (!res.ok) return [];
+      const all = await res.json();
+      return all.filter((a: AtivoPatrimonioItem) => ["ACAO", "FII", "ETF"].includes(a.tipo));
+    },
+    initialAtivos
   );
 
   return (
@@ -45,16 +115,20 @@ export function LancamentosAtivosContent({ initialData }: Props) {
       )}
 
       <div className="card p-6">
-        {loading && !data ? (
+        <h2 className="mb-1 font-display text-lg text-foreground">Operações registradas</h2>
+        <p className="mb-4 text-sm text-foreground/50">Compras e vendas lançadas manualmente ou via importação B3.</p>
+        {loading && !lancamentos ? (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-8 animate-pulse rounded-lg bg-foreground/5" />
             ))}
           </div>
         ) : (
-          <ListaLancamentosAtivos lancamentos={data ?? []} onRefresh={refresh} />
+          <ListaLancamentosAtivos lancamentos={lancamentos ?? []} onRefresh={refresh} />
         )}
       </div>
+
+      <SecaoPatrimonio ativos={ativos ?? []} />
     </div>
   );
 }

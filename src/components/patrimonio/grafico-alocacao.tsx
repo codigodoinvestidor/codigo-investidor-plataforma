@@ -1,6 +1,7 @@
 "use client";
 
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import { TooltipEscuro } from "@/components/tooltip-escuro";
 
 type Item = { categoria: string; total: number };
 
@@ -42,11 +43,7 @@ export function GraficoAlocacao({ dados }: { dados: Item[] }) {
               <Cell key={index} fill={CORES[index % CORES.length]} stroke="none" />
             ))}
           </Pie>
-          <Tooltip
-            formatter={(value) =>
-              Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-            }
-          />
+          <Tooltip content={<TooltipEscuro formatter={(v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />} />
       </PieChart>
       </div>
 

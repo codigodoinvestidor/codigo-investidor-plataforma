@@ -95,14 +95,17 @@ export async function calcularRentabilidadeComparada(
   const cdiDiario = await buscarSerieBacen(SERIE_CDI, diasTotais + 10);
   const ipcaMensal = await buscarSerieBacen(SERIE_IPCA, periodoMeses + 2);
 
+  const dataInicioStr = dataIso(snapshots[0]);
   const rentabilidadeCdi = snapshots.map((data) => {
-    const pontosAteData = cdiDiario.filter((p) => p.data <= data && p.data >= snapshots[0]);
+    const limiteStr = dataIso(data);
+    const pontosAteData = cdiDiario.filter((p) => p.data <= limiteStr && p.data >= dataInicioStr);
     const fator = pontosAteData.reduce((acc, p) => acc * (1 + p.valorPct / 100), 1);
     return (fator - 1) * 100;
   });
 
   const rentabilidadeIpca = snapshots.map((data) => {
-    const pontosAteData = ipcaMensal.filter((p) => p.data <= data && p.data >= snapshots[0]);
+    const limiteStr = dataIso(data);
+    const pontosAteData = ipcaMensal.filter((p) => p.data <= limiteStr && p.data >= dataInicioStr);
     const fator = pontosAteData.reduce((acc, p) => acc * (1 + p.valorPct / 100), 1);
     return (fator - 1) * 100;
   });

@@ -1,6 +1,7 @@
 "use client";
 
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts";
+import { TooltipEscuro } from "@/components/tooltip-escuro";
 
 type Ponto = {
   data: string;
@@ -21,8 +22,8 @@ export function GraficoComparativo({ dados }: { dados: Ponto[] }) {
           tickFormatter={(v: number) => `${v.toFixed(0)}%`}
           width={48}
         />
-        <Tooltip formatter={(value) => `${Number(value).toFixed(2)}%`} />
-        <Legend />
+        <Tooltip content={<TooltipEscuro formatter={(v) => `${Number(v).toFixed(2)}%`} />} />
+        <Legend wrapperStyle={{ color: "var(--foreground)", opacity: 0.7, fontSize: 13 }} />
         <Line type="monotone" dataKey="carteira" name="Carteira" stroke="#d4af37" strokeWidth={2.5} dot={false} />
         <Line type="monotone" dataKey="ibov" name="IBOV" stroke="#3b82f6" strokeWidth={2} dot={false} />
         <Line type="monotone" dataKey="cdi" name="CDI" stroke="#10b981" strokeWidth={2} dot={false} />

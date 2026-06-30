@@ -1,6 +1,7 @@
 "use client";
 
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import { TooltipEscuro } from "@/components/tooltip-escuro";
 
 type Item = { categoria: string; total: number };
 
@@ -41,7 +42,7 @@ export function GraficoCategorias({ dados }: { dados: Item[] }) {
               <Cell key={index} fill={CORES[index % CORES.length]} stroke="none" />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => formatarMoeda(Number(value))} />
+          <Tooltip content={<TooltipEscuro formatter={(v) => formatarMoeda(Number(v))} />} />
         </PieChart>
       </div>
 

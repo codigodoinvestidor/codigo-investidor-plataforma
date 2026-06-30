@@ -1,3 +1,5 @@
+import { unstable_cache } from "next/cache";
+
 const BACEN_BASE_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs";
 
 export const SERIE_CDI = 12;
@@ -10,21 +12,28 @@ function parseDataBr(data: string): Date {
   return new Date(ano, mes - 1, dia);
 }
 
-// CDI: série diária (% ao dia). IPCA: série mensal (% no mês).
-// API pública do Banco Central, sem necessidade de token.
-export async function buscarSerieBacen(codigo: number, ultimosN: number) {
+async function _buscarSerieBacen(codigo: number, ultimosN: number) {
   try {
     const resposta = await fetch(
-      `${BACEN_BASE_URL}.${codigo}/dados/ultimos/${ultimosN}?formato=json`
+      `${BACEN_BASE_URL}.${codigo}/dados/ultimos/${ultimosN}?formato=json`,
+      { next: { revalidate: 86400 } }
     );
     if (!resposta.ok) return [];
-
     const dados: PontoBacen[] = await resposta.json();
-    return dados.map((p) => ({ data: parseDataBr(p.data), valorPct: Number(p.valor) }));
+    // retorna data como string ISO para ser serializável pelo unstable_cache
+    return dados.map((p) => ({ data: parseDataBr(p.data).toISOString(), valorPct: Number(p.valor) }));
   } catch {
     return [];
   }
 }
+
+// Cache por 24h — Bacen não atualiza com mais frequência que isso
+export const buscarSerieBacen = (codigo: number, ultimosN: number) =>
+  unstable_cache(
+    () => _buscarSerieBacen(codigo, ultimosN),
+    [`bacen-${codigo}-${ultimosN}`],
+    { revalidate: 86400, tags: [`bacen-${codigo}`] }
+  )();
 
 export function acumularRetorno(pontos: { valorPct: number }[]) {
   return pontos.reduce((acumulado, p) => acumulado * (1 + p.valorPct / 100), 1);
