@@ -6,7 +6,10 @@ export default async function PatrimonioPage() {
   const user = await getUser();
   const ativos = await getAtivos(user!.id);
   const initialData = ativos.map((a) => ({
-    ...a,
+    id: a.id,
+    tipo: a.tipo,
+    ticker: a.ticker,
+    nome: a.nome,
     quantidade: a.quantidade.toString(),
     valorCompraUnitario: a.valorCompraUnitario.toString(),
     dataCompra: a.dataCompra.toISOString(),
