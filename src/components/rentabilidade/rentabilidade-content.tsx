@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { GraficoComparativo } from "@/components/rentabilidade/grafico-comparativo";
 import { TabelaComparativa } from "@/components/rentabilidade/tabela-comparativa";
+import { useCachedFetch } from "@/lib/use-cached-fetch";
 
 type Ponto = { data: string; carteira: number; ibov: number | null; cdi: number; ipca: number };
 type TodosPeriodos = Record<number, Ponto[]>;
+type RespostaApi = { vazio: true } | { vazio: false; todos: TodosPeriodos };
 
 const PERIODOS = [
   { label: "1M", meses: 1 },
@@ -30,32 +32,24 @@ function SkeletonGrafico() {
   return <div className="h-72 animate-pulse rounded-xl bg-foreground/5" />;
 }
 
-export function RentabilidadeContent() {
+async function buscarRentabilidade(): Promise<RespostaApi> {
+  const res = await fetch("/api/rentabilidade");
+  const json = await res.json();
+  if (json.vazio) return { vazio: true };
+  // API retorna chaves como strings → converte para número
+  const normalizado: TodosPeriodos = {};
+  for (const [k, v] of Object.entries(json)) {
+    normalizado[Number(k)] = v as Ponto[];
+  }
+  return { vazio: false, todos: normalizado };
+}
+
+export function RentabilidadeContent({ initialData }: { initialData?: RespostaApi }) {
   const [periodo, setPeriodo] = useState(12);
-  const [todos, setTodos] = useState<TodosPeriodos | null>(null);
-  const [carregando, setCarregando] = useState(true);
-  const [vazio, setVazio] = useState(false);
+  const { data: resposta, loading: carregando } = useCachedFetch("rentabilidade", buscarRentabilidade, initialData);
 
-  useEffect(() => {
-    fetch("/api/rentabilidade")
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.vazio) {
-          setVazio(true);
-        } else {
-          // API retorna chaves como strings → converte para número
-          const normalizado: TodosPeriodos = {};
-          for (const [k, v] of Object.entries(json)) {
-            normalizado[Number(k)] = v as Ponto[];
-          }
-          setTodos(normalizado);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setCarregando(false));
-  }, []);
-
-  const dados = todos?.[periodo] ?? null;
+  const vazio = resposta?.vazio === true;
+  const dados = resposta && !resposta.vazio ? resposta.todos[periodo] ?? null : null;
   const ultimoPonto = dados?.[dados.length - 1];
 
   const formatarPct = (v: number | null | undefined) => {
