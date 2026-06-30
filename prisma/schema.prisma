@@ -82,6 +82,32 @@ model Provento {
   @@map("proventos")
 }
 
+enum TipoOperacao {
+  COMPRA
+  VENDA
+}
+
+// Histórico de operações de compra e venda de ativos em bolsa.
+// Pode ser inserido manualmente ou importado via CSV da B3.
+model LancamentoAtivo {
+  id            String       @id @default(uuid())
+  userId        String
+  tipo          TipoOperacao
+  ticker        String
+  nome          String?
+  quantidade    Decimal      @db.Decimal(18, 6)
+  precoUnitario Decimal      @db.Decimal(14, 4)
+  valorTotal    Decimal      @db.Decimal(14, 2)
+  dataOperacao  DateTime     @db.Date
+  corretora     String?
+  criadoEm     DateTime     @default(now())
+  atualizadoEm DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([userId, ticker])
+  @@map("lancamentos_ativos")
+}
+
 // Cache compartilhado entre todos os usuários: um ticker é buscado uma vez
 // na API de cotações e todos que possuem aquele ativo leem da mesma linha.
 model CotacaoAtivo {

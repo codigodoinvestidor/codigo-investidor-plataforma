@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet2, Landmark, Coins, LineChart } from "lucide-react";
+import { LayoutDashboard, Wallet2, Landmark, Coins, LineChart, ScrollText } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SairButton } from "@/components/dashboard/sair-button";
 
@@ -10,6 +10,7 @@ const NAV = [
   { href: "/dashboard", rotulo: "Orçamento", icone: Wallet2 },
   { href: "/patrimonio", rotulo: "Patrimônio", icone: Landmark },
   { href: "/proventos", rotulo: "Proventos", icone: Coins },
+  { href: "/lancamentos-ativos", rotulo: "Lançamentos", icone: ScrollText },
   { href: "/rentabilidade", rotulo: "Rentabilidade", icone: LineChart },
 ];
 
