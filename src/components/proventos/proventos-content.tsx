@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { Coins, Target, Wallet } from "lucide-react";
+import { useCachedFetch } from "@/lib/use-cached-fetch";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { NovoProventoForm } from "@/components/proventos/novo-provento-form";
@@ -37,24 +38,25 @@ function Skeleton() {
 }
 
 export function ProventosContent() {
-  const [proventos, setProventos] = useState<ProventoApi[] | null>(null);
-  const [tickers, setTickers] = useState<string[]>([]);
+  const { data: proventos, loading, refresh: recarregarProventos } = useCachedFetch<ProventoApi[]>(
+    "proventos",
+    async () => { const r = await fetch("/api/proventos"); return r.json(); }
+  );
+  const { data: ativos, refresh: recarregarAtivos } = useCachedFetch<AtivoApi[]>(
+    "ativos",
+    async () => { const r = await fetch("/api/ativos"); return r.json(); }
+  );
+
+  const tickers = useMemo(
+    () => (ativos ?? []).map((a) => a.ticker).filter(Boolean) as string[],
+    [ativos]
+  );
 
   const carregar = useCallback(async () => {
-    const [resProventos, resAtivos] = await Promise.all([
-      fetch("/api/proventos"),
-      fetch("/api/ativos"),
-    ]);
-    if (resProventos.ok) setProventos(await resProventos.json());
-    if (resAtivos.ok) {
-      const ativos: AtivoApi[] = await resAtivos.json();
-      setTickers(ativos.map((a) => a.ticker).filter(Boolean) as string[]);
-    }
-  }, []);
+    await Promise.all([recarregarProventos(), recarregarAtivos()]);
+  }, [recarregarProventos, recarregarAtivos]);
 
-  useEffect(() => { carregar(); }, [carregar]);
-
-  if (!proventos) return <Skeleton />;
+  if (loading || !proventos) return <Skeleton />;
 
   const proventosCalculo = proventos.map((p) => ({
     ticker: p.ticker,

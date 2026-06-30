@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Landmark, Wallet, TrendingUp, TrendingDown, Trophy } from "lucide-react";
+import { useCachedFetch } from "@/lib/use-cached-fetch";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { NovoAtivoForm } from "@/components/patrimonio/novo-ativo-form";
 import { GraficoAlocacao } from "@/components/patrimonio/grafico-alocacao";
@@ -40,25 +41,23 @@ function Skeleton() {
 }
 
 export function PatrimonioContent() {
-  const [ativos, setAtivos] = useState<AtivoApi[] | null>(null);
-  const [cotacoes, setCotacoes] = useState<CotacoesApi>({});
+  const { data: ativos, loading, refresh: recarregarAtivos } = useCachedFetch<AtivoApi[]>(
+    "ativos",
+    async () => { const r = await fetch("/api/ativos"); return r.json(); }
+  );
+  const { data: cotacoesData, refresh: recarregarCotacoes } = useCachedFetch<CotacoesApi>(
+    "cotacoes",
+    async () => { const r = await fetch("/api/cotacoes"); return r.json(); }
+  );
+  const cotacoes: CotacoesApi = cotacoesData ?? {};
 
   const carregar = useCallback(async () => {
-    const [resAtivos, resCotacoes] = await Promise.all([
-      fetch("/api/ativos"),
-      fetch("/api/cotacoes"),
-    ]);
-    if (resAtivos.ok) setAtivos(await resAtivos.json());
-    if (resCotacoes.ok) setCotacoes(await resCotacoes.json());
-    // atualiza cotações em background
-    fetch("/api/cotacoes/atualizar", { method: "POST" }).then(() =>
-      fetch("/api/cotacoes").then((r) => r.json()).then(setCotacoes)
-    );
-  }, []);
+    await Promise.all([recarregarAtivos(), recarregarCotacoes()]);
+    // atualiza cotações externas em background
+    fetch("/api/cotacoes/atualizar", { method: "POST" }).then(() => recarregarCotacoes());
+  }, [recarregarAtivos, recarregarCotacoes]);
 
-  useEffect(() => { carregar(); }, [carregar]);
-
-  if (!ativos) return <Skeleton />;
+  if (loading || !ativos) return <Skeleton />;
 
   const ativosComValor: AtivoComValor[] = ativos.map((a) => {
     const quantidade = Number(a.quantidade);

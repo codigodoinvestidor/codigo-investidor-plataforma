@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { Wallet, TrendingDown, TrendingUp } from "lucide-react";
+import { useCachedFetch } from "@/lib/use-cached-fetch";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { NovoLancamentoForm } from "@/components/dashboard/novo-lancamento-form";
 import { GraficoCategorias } from "@/components/dashboard/grafico-categorias";
@@ -38,16 +38,12 @@ function Skeleton() {
 }
 
 export function DashboardContent() {
-  const [lancamentos, setLancamentos] = useState<Lancamento[] | null>(null);
+  const { data: lancamentos, loading, refresh: carregar } = useCachedFetch<Lancamento[]>(
+    "lancamentos",
+    async () => { const r = await fetch("/api/lancamentos"); return r.json(); }
+  );
 
-  const carregar = useCallback(async () => {
-    const res = await fetch("/api/lancamentos");
-    if (res.ok) setLancamentos(await res.json());
-  }, []);
-
-  useEffect(() => { carregar(); }, [carregar]);
-
-  if (!lancamentos) return <Skeleton />;
+  if (loading || !lancamentos) return <Skeleton />;
 
   const lancamentosCalculo = lancamentos.map((l) => ({
     tipo: l.tipo,
