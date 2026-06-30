@@ -23,9 +23,11 @@ export type LancamentoEditavel = {
 export function EditarLancamentoModal({
   lancamento,
   onFechar,
+  onRefresh,
 }: {
   lancamento: LancamentoEditavel;
   onFechar: () => void;
+  onRefresh?: () => void;
 }) {
   const router = useRouter();
   const [tipo, setTipo] = useState<"RENDA" | "DESPESA">(lancamento.tipo);
@@ -69,7 +71,7 @@ export function EditarLancamentoModal({
       return;
     }
 
-    router.refresh();
+    if (onRefresh) onRefresh(); else router.refresh();
     onFechar();
   }
 

@@ -15,14 +15,14 @@ function formatarData(iso: string) {
   return new Date(iso).toLocaleDateString("pt-BR");
 }
 
-export function ListaProventos({ proventos }: { proventos: ProventoEditavel[] }) {
+export function ListaProventos({ proventos, onRefresh }: { proventos: ProventoEditavel[]; onRefresh?: () => void }) {
   const router = useRouter();
   const [editando, setEditando] = useState<ProventoEditavel | null>(null);
   const hoje = new Date();
 
   async function excluir(id: string) {
     await fetch(`/api/proventos/${id}`, { method: "DELETE" });
-    router.refresh();
+    if (onRefresh) onRefresh(); else router.refresh();
   }
 
   if (proventos.length === 0) {
@@ -93,7 +93,7 @@ export function ListaProventos({ proventos }: { proventos: ProventoEditavel[] })
       </div>
 
       {editando && (
-        <EditarProventoModal provento={editando} onFechar={() => setEditando(null)} />
+        <EditarProventoModal provento={editando} onFechar={() => setEditando(null)} onRefresh={onRefresh} />
       )}
     </>
   );

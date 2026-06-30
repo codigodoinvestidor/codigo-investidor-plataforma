@@ -7,7 +7,7 @@ import { TIPOS_PAGAMENTO_PROVENTO } from "@/lib/validacao-provento";
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
-export function NovoProventoForm({ tickers }: { tickers: string[] }) {
+export function NovoProventoForm({ tickers, onSuccess }: { tickers: string[]; onSuccess?: () => void }) {
   const router = useRouter();
   const [ticker, setTicker] = useState(tickers[0] ?? "");
   const [tipoPagamento, setTipoPagamento] = useState<string>(TIPOS_PAGAMENTO_PROVENTO[0]);
@@ -54,7 +54,7 @@ export function NovoProventoForm({ tickers }: { tickers: string[] }) {
 
     setValorTotal("");
     setDataCom("");
-    router.refresh();
+    if (onSuccess) onSuccess(); else router.refresh();
   }
 
   return (

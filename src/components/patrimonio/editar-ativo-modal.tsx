@@ -19,9 +19,11 @@ export type AtivoEditavel = {
 export function EditarAtivoModal({
   ativo,
   onFechar,
+  onRefresh,
 }: {
   ativo: AtivoEditavel;
   onFechar: () => void;
+  onRefresh?: () => void;
 }) {
   const router = useRouter();
   const [tipo, setTipo] = useState<TipoAtivo>(ativo.tipo);
@@ -82,7 +84,7 @@ export function EditarAtivoModal({
       return;
     }
 
-    router.refresh();
+    if (onRefresh) onRefresh(); else router.refresh();
     onFechar();
   }
 

@@ -10,7 +10,7 @@ const MES_ATUAL = HOJE.getMonth() + 1;
 const ANO_ATUAL = HOJE.getFullYear();
 const ANOS = Array.from({ length: 6 }, (_, i) => ANO_ATUAL - 1 + i);
 
-export function NovoLancamentoForm() {
+export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const router = useRouter();
   const [tipo, setTipo] = useState<"RENDA" | "DESPESA">("DESPESA");
   const [categoria, setCategoria] = useState<string>(CATEGORIAS_DESPESA[0]);
@@ -55,7 +55,7 @@ export function NovoLancamentoForm() {
 
     setDescricao("");
     setValor("");
-    router.refresh();
+    if (onSuccess) onSuccess(); else router.refresh();
   }
 
   return (

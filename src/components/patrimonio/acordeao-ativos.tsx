@@ -14,9 +14,11 @@ const formatarMoeda = (v: number) =>
 export function AcordeaoAtivos({
   ativos,
   valorTotalPatrimonio,
+  onRefresh,
 }: {
   ativos: AtivoComValor[];
   valorTotalPatrimonio: number;
+  onRefresh?: () => void;
 }) {
   const router = useRouter();
   const [editando, setEditando] = useState<AtivoEditavel | null>(null);
@@ -24,7 +26,7 @@ export function AcordeaoAtivos({
 
   async function excluir(id: string) {
     await fetch(`/api/ativos/${id}`, { method: "DELETE" });
-    router.refresh();
+    if (onRefresh) onRefresh(); else router.refresh();
   }
 
   function alternar(tipo: TipoAtivo) {
@@ -97,7 +99,7 @@ export function AcordeaoAtivos({
         })}
       </div>
 
-      {editando && <EditarAtivoModal ativo={editando} onFechar={() => setEditando(null)} />}
+      {editando && <EditarAtivoModal ativo={editando} onFechar={() => setEditando(null)} onRefresh={onRefresh} />}
     </>
   );
 }

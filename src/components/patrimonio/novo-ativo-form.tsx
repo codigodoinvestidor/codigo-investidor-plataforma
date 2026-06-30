@@ -7,7 +7,7 @@ import { TIPOS_ATIVO, tipoExigeTicker, type TipoAtivo } from "@/lib/ativos";
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
-export function NovoAtivoForm() {
+export function NovoAtivoForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const router = useRouter();
   const [tipo, setTipo] = useState<TipoAtivo>("ACAO");
   const [ticker, setTicker] = useState("");
@@ -72,7 +72,7 @@ export function NovoAtivoForm() {
     setQuantidade("");
     setValorCompraUnitario("");
     setPercentualIdeal("");
-    router.refresh();
+    if (onSuccess) onSuccess(); else router.refresh();
   }
 
   return (

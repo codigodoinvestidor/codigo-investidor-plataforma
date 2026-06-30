@@ -13,13 +13,13 @@ function periodo(l: LancamentoEditavel) {
   return `${inicio} – ${NOMES_MESES_ABREV[l.mesFim - 1]}/${l.anoFim}`;
 }
 
-export function ListaLancamentos({ lancamentos }: { lancamentos: LancamentoEditavel[] }) {
+export function ListaLancamentos({ lancamentos, onRefresh }: { lancamentos: LancamentoEditavel[]; onRefresh?: () => void }) {
   const router = useRouter();
   const [editando, setEditando] = useState<LancamentoEditavel | null>(null);
 
   async function excluir(id: string) {
     await fetch(`/api/lancamentos/${id}`, { method: "DELETE" });
-    router.refresh();
+    if (onRefresh) onRefresh(); else router.refresh();
   }
 
   if (lancamentos.length === 0) {
@@ -83,7 +83,7 @@ export function ListaLancamentos({ lancamentos }: { lancamentos: LancamentoEdita
       </ul>
 
       {editando && (
-        <EditarLancamentoModal lancamento={editando} onFechar={() => setEditando(null)} />
+        <EditarLancamentoModal lancamento={editando} onFechar={() => setEditando(null)} onRefresh={onRefresh} />
       )}
     </>
   );

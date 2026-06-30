@@ -17,9 +17,11 @@ export type ProventoEditavel = {
 export function EditarProventoModal({
   provento,
   onFechar,
+  onRefresh,
 }: {
   provento: ProventoEditavel;
   onFechar: () => void;
+  onRefresh?: () => void;
 }) {
   const router = useRouter();
   const [ticker, setTicker] = useState(provento.ticker);
@@ -54,7 +56,7 @@ export function EditarProventoModal({
       return;
     }
 
-    router.refresh();
+    if (onRefresh) onRefresh(); else router.refresh();
     onFechar();
   }
 
