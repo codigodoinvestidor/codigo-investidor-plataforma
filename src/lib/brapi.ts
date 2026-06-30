@@ -45,32 +45,6 @@ function normalizarNomeAtivo(nome: string): string {
 
 export type PontoHistorico = { data: string; preco: number };
 
-export async function buscarHistoricoTicker(
-  ticker: string,
-  range: string,
-  interval: string
-): Promise<PontoHistorico[]> {
-  const token = process.env.BRAPI_TOKEN;
-  if (!token) return [];
-
-  try {
-    const tickerCodificado = encodeURIComponent(ticker);
-    const resposta = await fetch(
-      `${BRAPI_BASE_URL}/quote/${tickerCodificado}?range=${range}&interval=${interval}&token=${token}`
-    );
-    if (!resposta.ok) return [];
-
-    const dados = await resposta.json();
-    const pontos = dados.results?.[0]?.historicalDataPrice ?? [];
-    return pontos.map((p: { date: number; close: number }) => ({
-      data: new Date(p.date * 1000).toISOString().slice(0, 10),
-      preco: p.close,
-    }));
-  } catch {
-    return [];
-  }
-}
-
 export async function buscarNomeAtivo(ticker: string): Promise<string | null> {
   const token = process.env.BRAPI_TOKEN;
   if (!token) return null;

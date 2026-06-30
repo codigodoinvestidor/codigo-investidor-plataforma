@@ -92,29 +92,14 @@ async function _calcularTodos(ativos: AtivoParaRentabilidade[]): Promise<TodosPe
   const tickersUnicos = Array.from(new Set(ativos.map((a) => a.ticker)));
 
   // Uma única chamada para todos os dados externos
-  const tIO = Date.now();
   const [resultadosTickers, historicoIbov, cdiDiario, ipcaMensal] = await Promise.all([
-    Promise.all(tickersUnicos.map((t) => {
-      const tT = Date.now();
-      return obterHistoricoComCache(t, RANGE_MAXIMO, "1d").then((h) => {
-        console.log(`[rentabilidade] ticker ${t}: ${Date.now() - tT}ms (${h.length} pontos)`);
-        return [t, h] as const;
-      });
-    })),
-    obterHistoricoComCache(TICKER_IBOV, RANGE_MAXIMO, "1d").then((h) => {
-      console.log(`[rentabilidade] IBOV: ${Date.now() - tIO}ms (${h.length} pontos)`);
-      return h;
-    }),
-    buscarCdi().then((d) => {
-      console.log(`[rentabilidade] CDI: ${Date.now() - tIO}ms (${d.length} pontos)`);
-      return d;
-    }),
-    buscarIpca().then((d) => {
-      console.log(`[rentabilidade] IPCA: ${Date.now() - tIO}ms (${d.length} pontos)`);
-      return d;
-    }),
+    Promise.all(tickersUnicos.map((t) =>
+      obterHistoricoComCache(t, RANGE_MAXIMO, "1d").then((h) => [t, h] as const)
+    )),
+    obterHistoricoComCache(TICKER_IBOV, RANGE_MAXIMO, "1d"),
+    buscarCdi(),
+    buscarIpca(),
   ]);
-  console.log(`[rentabilidade] todos os fetches: ${Date.now() - tIO}ms`);
   const historicos = new Map<string, PontoSerie[]>(resultadosTickers);
 
   // Calcula todos os períodos com os dados já em memória (sem I/O adicional)
@@ -130,7 +115,7 @@ export function calcularTodosPeriodos(ativos: AtivoParaRentabilidade[]) {
   const chave = ativos.map((a) => `${a.ticker}:${a.quantidade}`).sort().join(",");
   return unstable_cache(
     () => _calcularTodos(ativos),
-    [`rentabilidade-todos-${chave}`],
+    [`rentabilidade-todos-v2-${chave}`],
     { revalidate: 3600, tags: ["rentabilidade"] }
   )();
 }
