@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { lancamentoAtivoSchema } from "@/lib/validacao-lancamento-ativo";
+import { sincronizarAtivo } from "@/lib/sincronizar-ativo";
 
 async function buscar(id: string, userId: string) {
   const l = await prisma.lancamentoAtivo.findUnique({ where: { id } });
@@ -28,6 +29,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     data: { ...rest, dataOperacao: new Date(dataOperacao) },
   });
 
+  // Se o ticker mudou, sync os dois
+  if (existente.ticker !== lancamento.ticker) {
+    await sincronizarAtivo(user.id, existente.ticker);
+  }
+  await sincronizarAtivo(user.id, lancamento.ticker);
+
   return NextResponse.json({ id: lancamento.id });
 }
 
@@ -41,5 +48,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (!existente) return NextResponse.json({ erro: "Não encontrado" }, { status: 404 });
 
   await prisma.lancamentoAtivo.delete({ where: { id } });
+  await sincronizarAtivo(user.id, existente.ticker);
+
   return NextResponse.json({ ok: true });
 }

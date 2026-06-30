@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { lancamentoAtivoSchema } from "@/lib/validacao-lancamento-ativo";
+import { sincronizarAtivo } from "@/lib/sincronizar-ativo";
 
 export async function GET() {
   const supabase = await createClient();
@@ -39,6 +40,8 @@ export async function POST(request: Request) {
   const lancamento = await prisma.lancamentoAtivo.create({
     data: { ...rest, dataOperacao: new Date(dataOperacao), userId: user.id },
   });
+
+  await sincronizarAtivo(user.id, lancamento.ticker);
 
   return NextResponse.json({ id: lancamento.id }, { status: 201 });
 }

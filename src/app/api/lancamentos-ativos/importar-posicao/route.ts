@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { sincronizarAtivo } from "@/lib/sincronizar-ativo";
 
 type LancamentoImport = {
   tipo: "COMPRA" | "VENDA";
@@ -35,6 +36,10 @@ export async function POST(request: Request) {
     })),
     skipDuplicates: false,
   });
+
+  // Sync todos os tickers importados para o Patrimônio
+  const tickers = [...new Set(lancamentos.map((l) => l.ticker))];
+  await Promise.all(tickers.map((t) => sincronizarAtivo(user.id, t)));
 
   return NextResponse.json({ importados: lancamentos.length });
 }

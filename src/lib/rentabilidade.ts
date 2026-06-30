@@ -59,11 +59,12 @@ export async function calcularRentabilidadeComparada(
   const tickersUnicos = Array.from(new Set(ativos.map((a) => a.ticker)));
   const rangeTickers = rangeParaMeses(periodoMeses);
 
-  const historicos = new Map<string, PontoSerie[]>();
-  for (const ticker of tickersUnicos) {
-    historicos.set(ticker, await obterHistoricoComCache(ticker, rangeTickers, "1d"));
-  }
-  const historicoIbov = await obterHistoricoComCache(TICKER_IBOV, rangeTickers, "1d");
+  // Busca todos os históricos em paralelo
+  const [resultadosTickers, historicoIbov] = await Promise.all([
+    Promise.all(tickersUnicos.map((t) => obterHistoricoComCache(t, rangeTickers, "1d").then((h) => [t, h] as const))),
+    obterHistoricoComCache(TICKER_IBOV, rangeTickers, "1d"),
+  ]);
+  const historicos = new Map<string, PontoSerie[]>(resultadosTickers);
 
   const valoresCarteira = snapshots.map((data) => {
     const dataLimite = dataIso(data);

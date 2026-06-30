@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { parsearCsvB3 } from "@/lib/b3-csv";
+import { sincronizarAtivo } from "@/lib/sincronizar-ativo";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -24,6 +25,9 @@ export async function POST(request: Request) {
     data: linhas.map((l) => ({ ...l, userId: user.id })),
     skipDuplicates: false,
   });
+
+  const tickers = [...new Set(linhas.map((l) => l.ticker))];
+  await Promise.all(tickers.map((t) => sincronizarAtivo(user.id, t)));
 
   return NextResponse.json({ importados: linhas.length });
 }
