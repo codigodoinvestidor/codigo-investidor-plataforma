@@ -1,7 +1,6 @@
 import { Coins, Target, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { AppHeader } from "@/components/dashboard/app-header";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { NovoProventoForm } from "@/components/proventos/novo-provento-form";
@@ -56,8 +55,6 @@ export default async function ProventosPage() {
   const formatar = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const nome = (user?.user_metadata?.nome as string | undefined)?.split(" ")[0];
-
   const proventosSerializados = proventos.map((p) => ({
     id: p.id,
     ticker: p.ticker,
@@ -68,72 +65,51 @@ export default async function ProventosPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppHeader nome={nome} paginaAtiva="proventos" />
+    <>
+      <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <CartaoResumo titulo="Média mensal (12m)" valor={formatar(mediaMensal12Meses)} icone={Target} tom="neutro" />
+        <CartaoResumo titulo="Total últimos 12 meses" valor={formatar(total12Meses)} icone={Coins} tom="positivo" />
+        <CartaoResumo titulo="Total recebido (geral)" valor={formatar(totalGeral)} icone={Wallet} tom="neutro" />
+      </section>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <CartaoResumo
-            titulo="Média mensal (12m)"
-            valor={formatar(mediaMensal12Meses)}
-            icone={Target}
-            tom="neutro"
-          />
-          <CartaoResumo
-            titulo="Total últimos 12 meses"
-            valor={formatar(total12Meses)}
-            icone={Coins}
-            tom="positivo"
-          />
-          <CartaoResumo
-            titulo="Total recebido (geral)"
-            valor={formatar(totalGeral)}
-            icone={Wallet}
-            tom="neutro"
-          />
-        </section>
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-1">
+          <NovoProventoForm tickers={tickers} />
+        </div>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <NovoProventoForm tickers={tickers} />
+        <div className="space-y-6 lg:col-span-2">
+          <div className="card p-6">
+            <h2 className="mb-1 font-display text-lg text-foreground">Evolução de proventos</h2>
+            <p className="mb-4 text-sm text-foreground/55">Últimos 12 meses.</p>
+            <GraficoEvolucaoProventos dados={evolucao} />
           </div>
 
-          <div className="space-y-6 lg:col-span-2">
-            <div className="card p-6">
-              <h2 className="mb-1 font-display text-lg text-foreground">Evolução de proventos</h2>
-              <p className="mb-4 text-sm text-foreground/55">Últimos 12 meses.</p>
-              <GraficoEvolucaoProventos dados={evolucao} />
-            </div>
-
-            <div className="card p-6">
-              <h2 className="mb-1 font-display text-lg text-foreground">
-                Distribuição por ativo
-              </h2>
-              <p className="mb-4 text-sm text-foreground/55">De onde vêm seus proventos.</p>
-              <GraficoAlocacao dados={distribuicao} />
-            </div>
-
-            <div className="card p-6">
-              <div className="mb-1 flex items-center justify-between">
-                <h2 className="font-display text-lg text-foreground">Meus proventos</h2>
-                <BotaoExportarCsv href="/api/proventos/exportar" />
-              </div>
-              <p className="mb-4 text-sm text-foreground/55">Histórico de pagamentos.</p>
-              <ListaProventos proventos={proventosSerializados} />
-            </div>
+          <div className="card p-6">
+            <h2 className="mb-1 font-display text-lg text-foreground">Distribuição por ativo</h2>
+            <p className="mb-4 text-sm text-foreground/55">De onde vêm seus proventos.</p>
+            <GraficoAlocacao dados={distribuicao} />
           </div>
-        </section>
 
-        <section className="mt-6">
-          <div className="card overflow-hidden p-6">
-            <div className="mb-4">
-              <h2 className="font-display text-lg text-foreground">Histórico mensal</h2>
-              <p className="text-sm text-foreground/55">Proventos recebidos por mês, ano a ano.</p>
+          <div className="card p-6">
+            <div className="mb-1 flex items-center justify-between">
+              <h2 className="font-display text-lg text-foreground">Meus proventos</h2>
+              <BotaoExportarCsv href="/api/proventos/exportar" />
             </div>
-            <HistoricoMensalProventos proventos={proventosCalculo} anos={anosExibidos} />
+            <p className="mb-4 text-sm text-foreground/55">Histórico de pagamentos.</p>
+            <ListaProventos proventos={proventosSerializados} />
           </div>
-        </section>
-      </main>
-    </div>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <div className="card overflow-hidden p-6">
+          <div className="mb-4">
+            <h2 className="font-display text-lg text-foreground">Histórico mensal</h2>
+            <p className="text-sm text-foreground/55">Proventos recebidos por mês, ano a ano.</p>
+          </div>
+          <HistoricoMensalProventos proventos={proventosCalculo} anos={anosExibidos} />
+        </div>
+      </section>
+    </>
   );
 }

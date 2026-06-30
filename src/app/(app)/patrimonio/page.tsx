@@ -1,7 +1,6 @@
 import { Landmark, Wallet, TrendingUp, TrendingDown, Trophy } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { AppHeader } from "@/components/dashboard/app-header";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { NovoAtivoForm } from "@/components/patrimonio/novo-ativo-form";
 import { GraficoAlocacao } from "@/components/patrimonio/grafico-alocacao";
@@ -91,77 +90,53 @@ export default async function PatrimonioPage() {
   const formatar = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const nome = (user?.user_metadata?.nome as string | undefined)?.split(" ")[0];
-
   return (
-    <div className="min-h-screen bg-background">
-      <AppHeader nome={nome} paginaAtiva="patrimonio" />
+    <>
+      <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <CartaoResumo titulo="Patrimônio total" valor={formatar(valorTotalPatrimonio)} icone={Landmark} tom="neutro" />
+        <CartaoResumo titulo="Valor aplicado" valor={formatar(valorTotalAplicado)} icone={Wallet} tom="neutro" />
+        <CartaoResumo
+          titulo="Lucro total"
+          valor={formatar(lucroTotal)}
+          icone={lucroTotal >= 0 ? TrendingUp : TrendingDown}
+          tom={lucroTotal >= 0 ? "positivo" : "negativo"}
+        />
+        <CartaoResumo
+          titulo="Maior posição"
+          valor={maiorPosicao ? `${maiorPosicao.ticker ?? maiorPosicao.nome} · ${pctMaiorPosicao.toFixed(1)}%` : "—"}
+          icone={Trophy}
+          tom="neutro"
+        />
+      </section>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <CartaoResumo
-            titulo="Patrimônio total"
-            valor={formatar(valorTotalPatrimonio)}
-            icone={Landmark}
-            tom="neutro"
-          />
-          <CartaoResumo
-            titulo="Valor aplicado"
-            valor={formatar(valorTotalAplicado)}
-            icone={Wallet}
-            tom="neutro"
-          />
-          <CartaoResumo
-            titulo="Lucro total"
-            valor={formatar(lucroTotal)}
-            icone={lucroTotal >= 0 ? TrendingUp : TrendingDown}
-            tom={lucroTotal >= 0 ? "positivo" : "negativo"}
-          />
-          <CartaoResumo
-            titulo="Maior posição"
-            valor={
-              maiorPosicao
-                ? `${maiorPosicao.ticker ?? maiorPosicao.nome} · ${pctMaiorPosicao.toFixed(1)}%`
-                : "—"
-            }
-            icone={Trophy}
-            tom="neutro"
-          />
-        </section>
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-1">
+          <NovoAtivoForm />
+        </div>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <NovoAtivoForm />
+        <div className="space-y-6 lg:col-span-2">
+          <div className="card p-6">
+            <h2 className="mb-1 font-display text-lg text-foreground">Evolução do patrimônio</h2>
+            <p className="mb-4 text-sm text-foreground/55">Valor aplicado nos últimos 12 meses. Ganho de capital aparece no mês atual.</p>
+            <GraficoEvolucao dados={evolucao} />
           </div>
 
-          <div className="space-y-6 lg:col-span-2">
-            <div className="card p-6">
-              <h2 className="mb-1 font-display text-lg text-foreground">Evolução do patrimônio</h2>
-              <p className="mb-4 text-sm text-foreground/55">
-                Valor aplicado nos últimos 12 meses. Ganho de capital aparece no mês atual.
-              </p>
-              <GraficoEvolucao dados={evolucao} />
-            </div>
-
-            <div className="card p-6">
-              <h2 className="mb-1 font-display text-lg text-foreground">Ativos na carteira</h2>
-              <p className="mb-4 text-sm text-foreground/55">Como seu patrimônio está distribuído.</p>
-              <GraficoAlocacao dados={alocacaoPorTipo} />
-            </div>
-
-            <div className="card p-6">
-              <div className="mb-1 flex items-center justify-between">
-                <h2 className="font-display text-lg text-foreground">Meus ativos</h2>
-                <BotaoExportarCsv href="/api/ativos/exportar" />
-              </div>
-              <p className="mb-4 text-sm text-foreground/55">
-                Agrupados por classe. Cotação em tempo real para ações, FIIs e ETFs.
-              </p>
-              <AcordeaoAtivos ativos={ativosComValor} valorTotalPatrimonio={valorTotalPatrimonio} />
-            </div>
+          <div className="card p-6">
+            <h2 className="mb-1 font-display text-lg text-foreground">Ativos na carteira</h2>
+            <p className="mb-4 text-sm text-foreground/55">Como seu patrimônio está distribuído.</p>
+            <GraficoAlocacao dados={alocacaoPorTipo} />
           </div>
-        </section>
-      </main>
-    </div>
+
+          <div className="card p-6">
+            <div className="mb-1 flex items-center justify-between">
+              <h2 className="font-display text-lg text-foreground">Meus ativos</h2>
+              <BotaoExportarCsv href="/api/ativos/exportar" />
+            </div>
+            <p className="mb-4 text-sm text-foreground/55">Agrupados por classe. Cotação em tempo real para ações, FIIs e ETFs.</p>
+            <AcordeaoAtivos ativos={ativosComValor} valorTotalPatrimonio={valorTotalPatrimonio} />
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

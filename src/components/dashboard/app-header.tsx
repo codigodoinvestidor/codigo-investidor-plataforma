@@ -1,22 +1,21 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, Wallet2, Landmark, Coins, LineChart } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SairButton } from "@/components/dashboard/sair-button";
 
 const NAV = [
-  { href: "/dashboard", rotulo: "Orçamento", chave: "orcamento" as const, icone: Wallet2 },
-  { href: "/patrimonio", rotulo: "Patrimônio", chave: "patrimonio" as const, icone: Landmark },
-  { href: "/proventos", rotulo: "Proventos", chave: "proventos" as const, icone: Coins },
-  { href: "/rentabilidade", rotulo: "Rentabilidade", chave: "rentabilidade" as const, icone: LineChart },
+  { href: "/dashboard", rotulo: "Orçamento", icone: Wallet2 },
+  { href: "/patrimonio", rotulo: "Patrimônio", icone: Landmark },
+  { href: "/proventos", rotulo: "Proventos", icone: Coins },
+  { href: "/rentabilidade", rotulo: "Rentabilidade", icone: LineChart },
 ];
 
-export function AppHeader({
-  nome,
-  paginaAtiva,
-}: {
-  nome?: string | null;
-  paginaAtiva: "orcamento" | "patrimonio" | "proventos" | "rentabilidade";
-}) {
+export function AppHeader({ nome }: { nome?: string | null }) {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-10 border-b border-borda bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -37,10 +36,10 @@ export function AppHeader({
         <nav className="hidden items-center gap-1 rounded-full border border-borda p-1 sm:flex">
           {NAV.map((item) => (
             <Link
-              key={item.chave}
+              key={item.href}
               href={item.href}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                paginaAtiva === item.chave
+                pathname === item.href
                   ? "bg-dourado text-navy"
                   : "text-foreground/60 hover:text-foreground"
               }`}
@@ -59,10 +58,10 @@ export function AppHeader({
       <nav className="flex items-center gap-1 border-t border-borda px-4 py-2 sm:hidden">
         {NAV.map((item) => (
           <Link
-            key={item.chave}
+            key={item.href}
             href={item.href}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition ${
-              paginaAtiva === item.chave
+              pathname === item.href
                 ? "bg-dourado text-navy"
                 : "text-foreground/60 hover:text-foreground"
             }`}
