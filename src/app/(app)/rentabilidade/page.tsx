@@ -1,5 +1,5 @@
 import { TrendingUp } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { GraficoComparativo } from "@/components/rentabilidade/grafico-comparativo";
 import { TabelaComparativa } from "@/components/rentabilidade/tabela-comparativa";
@@ -9,9 +9,7 @@ import { getAtivosComTicker } from "@/lib/queries";
 const PERIODO_MESES = 12;
 
 export default async function RentabilidadePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
+  const user = await getUser();
   const ativos = await getAtivosComTicker(user!.id);
 
   const ativosParaCalculo = ativos

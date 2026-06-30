@@ -1,9 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
 import { AppHeader } from "@/components/dashboard/app-header";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser();
   const nome = (user?.user_metadata?.nome as string | undefined)?.split(" ")[0];
 
   return (

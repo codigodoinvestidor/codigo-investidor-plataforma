@@ -1,5 +1,5 @@
 import { Wallet, TrendingDown, TrendingUp } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { NovoLancamentoForm } from "@/components/dashboard/novo-lancamento-form";
 import { GraficoCategorias } from "@/components/dashboard/grafico-categorias";
@@ -11,9 +11,7 @@ import { NOMES_MESES } from "@/lib/categorias";
 import { getLancamentos } from "@/lib/queries";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
+  const user = await getUser();
   const lancamentos = await getLancamentos(user!.id);
 
   const lancamentosCalculo = lancamentos.map((l) => ({

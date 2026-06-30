@@ -1,5 +1,5 @@
 import { Coins, Target, Wallet } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { NovoProventoForm } from "@/components/proventos/novo-provento-form";
@@ -11,8 +11,7 @@ import { evolucaoProventos, distribuicaoPorTicker } from "@/lib/calculo-provento
 import { getProventos, getTickersAtivos } from "@/lib/queries";
 
 export default async function ProventosPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser();
 
   const [proventos, ativosComTicker] = await Promise.all([
     getProventos(user!.id),

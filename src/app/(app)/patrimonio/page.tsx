@@ -1,5 +1,5 @@
 import { Landmark, Wallet, TrendingUp, TrendingDown, Trophy } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { NovoAtivoForm } from "@/components/patrimonio/novo-ativo-form";
 import { GraficoAlocacao } from "@/components/patrimonio/grafico-alocacao";
@@ -13,9 +13,7 @@ import type { AtivoComValor } from "@/lib/tipos-patrimonio";
 import { getAtivos } from "@/lib/queries";
 
 export default async function PatrimonioPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
+  const user = await getUser();
   const ativos = await getAtivos(user!.id);
 
   await atualizarCotacoesDesatualizadas();
