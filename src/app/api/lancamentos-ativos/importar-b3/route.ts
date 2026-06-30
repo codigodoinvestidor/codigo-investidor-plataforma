@@ -14,7 +14,11 @@ export async function POST(request: Request) {
   if (!csv) return NextResponse.json({ erro: "CSV vazio" }, { status: 400 });
 
   const linhas = parsearCsvB3(csv);
-  if (linhas.length === 0) return NextResponse.json({ erro: "Nenhuma operação encontrada no arquivo" }, { status: 400 });
+  if (linhas.length === 0) {
+    // retorna amostra das primeiras linhas para facilitar debug
+    const amostra = csv.split(/\r?\n/).slice(0, 5).join(" | ");
+    return NextResponse.json({ erro: `Nenhuma operação encontrada. Primeiras linhas: ${amostra}` }, { status: 400 });
+  }
 
   await prisma.lancamentoAtivo.createMany({
     data: linhas.map((l) => ({ ...l, userId: user.id })),
