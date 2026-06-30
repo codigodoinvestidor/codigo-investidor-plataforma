@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { proventoSchema } from "@/lib/validacao-provento";
@@ -35,6 +36,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     data: resultado.data,
   });
 
+  revalidateTag(`proventos-${user.id}`);
   return NextResponse.json(provento);
 }
 
@@ -54,5 +56,6 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   await prisma.provento.delete({ where: { id } });
 
+  revalidateTag(`proventos-${user.id}`);
   return NextResponse.json({ ok: true });
 }

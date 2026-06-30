@@ -1,10 +1,10 @@
 import { TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { GraficoComparativo } from "@/components/rentabilidade/grafico-comparativo";
 import { TabelaComparativa } from "@/components/rentabilidade/tabela-comparativa";
 import { calcularRentabilidadeComparada } from "@/lib/rentabilidade";
+import { getAtivosComTicker } from "@/lib/queries";
 
 const PERIODO_MESES = 12;
 
@@ -12,9 +12,7 @@ export default async function RentabilidadePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const ativos = await prisma.ativo.findMany({
-    where: { userId: user!.id, ticker: { not: null } },
-  });
+  const ativos = await getAtivosComTicker(user!.id);
 
   const ativosParaCalculo = ativos
     .filter((a) => a.ticker)

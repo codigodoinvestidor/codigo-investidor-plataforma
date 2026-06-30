@@ -1,6 +1,5 @@
 import { Coins, Target, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { NovoProventoForm } from "@/components/proventos/novo-provento-form";
@@ -9,19 +8,17 @@ import { GraficoEvolucaoProventos } from "@/components/proventos/grafico-evoluca
 import { GraficoAlocacao } from "@/components/patrimonio/grafico-alocacao";
 import { HistoricoMensalProventos } from "@/components/proventos/historico-mensal-proventos";
 import { evolucaoProventos, distribuicaoPorTicker } from "@/lib/calculo-proventos";
+import { getProventos, getTickersAtivos } from "@/lib/queries";
 
 export default async function ProventosPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [proventos, ativos] = await Promise.all([
-    prisma.provento.findMany({ where: { userId: user!.id }, orderBy: { dataPagamento: "desc" } }),
-    prisma.ativo.findMany({
-      where: { userId: user!.id, ticker: { not: null } },
-      select: { ticker: true },
-      distinct: ["ticker"],
-    }),
+  const [proventos, ativosComTicker] = await Promise.all([
+    getProventos(user!.id),
+    getTickersAtivos(user!.id),
   ]);
+  const ativos = ativosComTicker;
 
   const tickers = ativos.map((a) => a.ticker).filter((t): t is string => Boolean(t));
 

@@ -1,6 +1,5 @@
 import { Wallet, TrendingDown, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { NovoLancamentoForm } from "@/components/dashboard/novo-lancamento-form";
 import { GraficoCategorias } from "@/components/dashboard/grafico-categorias";
@@ -9,15 +8,13 @@ import { ResumoAnual } from "@/components/dashboard/resumo-anual";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { gerarResumoAnual } from "@/lib/calculo-mensal";
 import { NOMES_MESES } from "@/lib/categorias";
+import { getLancamentos } from "@/lib/queries";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const lancamentos = await prisma.lancamentoFinanceiro.findMany({
-    where: { userId: user!.id },
-    orderBy: [{ anoInicio: "desc" }, { mesInicio: "desc" }],
-  });
+  const lancamentos = await getLancamentos(user!.id);
 
   const lancamentosCalculo = lancamentos.map((l) => ({
     tipo: l.tipo,

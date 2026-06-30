@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ativoSchema } from "@/lib/validacao-ativo";
@@ -38,5 +39,6 @@ export async function POST(request: Request) {
     data: { ...resultado.data, userId: user.id },
   });
 
+  revalidateTag(`ativos-${user.id}`);
   return NextResponse.json(ativo, { status: 201 });
 }
