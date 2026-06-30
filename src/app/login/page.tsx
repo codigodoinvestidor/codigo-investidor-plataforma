@@ -43,7 +43,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado">
-            Código do Investidor
+            Codigo do Investidor
           </p>
           <h2 className="mt-3 font-display text-2xl text-foreground">Bem-vindo de volta</h2>
           <p className="mt-1 text-sm text-foreground/60">
