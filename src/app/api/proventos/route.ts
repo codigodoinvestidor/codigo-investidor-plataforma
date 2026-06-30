@@ -39,6 +39,6 @@ export async function POST(request: Request) {
     data: { ...resultado.data, userId: user.id },
   });
 
-  revalidateTag(`proventos-${user.id}`);
+  revalidateTag(`proventos-${user.id}`, {});
   return NextResponse.json(provento, { status: 201 });
 }

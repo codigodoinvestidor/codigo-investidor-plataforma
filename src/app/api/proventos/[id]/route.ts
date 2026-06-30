@@ -36,7 +36,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     data: resultado.data,
   });
 
-  revalidateTag(`proventos-${user.id}`);
+  revalidateTag(`proventos-${user.id}`, {});
   return NextResponse.json(provento);
 }
 
@@ -56,6 +56,6 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   await prisma.provento.delete({ where: { id } });
 
-  revalidateTag(`proventos-${user.id}`);
+  revalidateTag(`proventos-${user.id}`, {});
   return NextResponse.json({ ok: true });
 }

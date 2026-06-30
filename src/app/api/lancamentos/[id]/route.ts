@@ -36,7 +36,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     data: resultado.data,
   });
 
-  revalidateTag(`lancamentos-${user.id}`);
+  revalidateTag(`lancamentos-${user.id}`, {});
   return NextResponse.json(lancamento);
 }
 
@@ -56,6 +56,6 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   await prisma.lancamentoFinanceiro.delete({ where: { id } });
 
-  revalidateTag(`lancamentos-${user.id}`);
+  revalidateTag(`lancamentos-${user.id}`, {});
   return NextResponse.json({ ok: true });
 }

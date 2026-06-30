@@ -39,6 +39,6 @@ export async function POST(request: Request) {
     data: { ...resultado.data, userId: user.id },
   });
 
-  revalidateTag(`ativos-${user.id}`);
+  revalidateTag(`ativos-${user.id}`, {});
   return NextResponse.json(ativo, { status: 201 });
 }
