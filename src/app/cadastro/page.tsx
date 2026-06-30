@@ -30,7 +30,10 @@ export default function CadastroPage() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password: senha,
-      options: { data: { nome } },
+      options: {
+        data: { nome },
+        emailRedirectTo: `${location.origin}/auth/callback`,
+      },
     });
 
     setCarregando(false);
