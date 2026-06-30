@@ -5,6 +5,7 @@ import { Landmark, Wallet, TrendingUp, TrendingDown, Trophy } from "lucide-react
 import { useCachedFetch } from "@/lib/use-cached-fetch";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { NovoAtivoForm } from "@/components/patrimonio/novo-ativo-form";
+import { ImportarPosicaoB3Modal } from "@/components/patrimonio/importar-posicao-b3-modal";
 import { GraficoAlocacao } from "@/components/patrimonio/grafico-alocacao";
 import { GraficoEvolucao } from "@/components/patrimonio/grafico-evolucao";
 import { AcordeaoAtivos } from "@/components/patrimonio/acordeao-ativos";
@@ -164,7 +165,10 @@ export function PatrimonioContent({ initialData }: { initialData?: AtivoApi[] })
           <div className="card p-6">
             <div className="mb-1 flex items-center justify-between">
               <h2 className="font-display text-lg text-foreground">Meus ativos</h2>
-              <BotaoExportarCsv href="/api/ativos/exportar" />
+              <div className="flex items-center gap-2">
+                <ImportarPosicaoB3Modal onSuccess={carregar} />
+                <BotaoExportarCsv href="/api/ativos/exportar" />
+              </div>
             </div>
             <p className="mb-4 text-sm text-foreground/55">Agrupados por classe. Cotação em tempo real para ações, FIIs e ETFs.</p>
             <AcordeaoAtivos ativos={ativosComValor} valorTotalPatrimonio={valorTotalPatrimonio} onRefresh={carregar} />
