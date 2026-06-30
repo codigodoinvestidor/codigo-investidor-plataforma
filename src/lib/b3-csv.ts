@@ -25,9 +25,14 @@ function parsearNumero(valor: string): number {
 }
 
 function parsearData(valor: string): Date {
-  // "01/02/2024" → 2024-02-01
-  const [dia, mes, ano] = valor.trim().split("/");
-  return new Date(`${ano}-${mes}-${dia}T12:00:00Z`);
+  const v = valor.trim();
+  if (v.includes("/")) {
+    // "01/02/2024" → 2024-02-01
+    const [dia, mes, ano] = v.split("/");
+    return new Date(`${ano}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}T12:00:00Z`);
+  }
+  // ISO "2024-02-01" or "2024-02-01T..."
+  return new Date(v.includes("T") ? v : `${v}T12:00:00Z`);
 }
 
 function extrairTicker(texto: string): string {

@@ -5,6 +5,14 @@ import { Upload, X } from "lucide-react";
 
 type Props = { onSuccess?: () => void };
 
+async function xlsxParaCsv(file: File): Promise<string> {
+  const XLSX = await import("xlsx");
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: "array", cellDates: true });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_csv(ws, { FS: ";" });
+}
+
 export function ImportarB3Modal({ onSuccess }: Props) {
   const [aberto, setAberto] = useState(false);
   const [importando, setImportando] = useState(false);
@@ -16,17 +24,27 @@ export function ImportarB3Modal({ onSuccess }: Props) {
     setErro(null);
     setResultado(null);
     setImportando(true);
-    const csv = await file.text();
-    const res = await fetch("/api/lancamentos-ativos/importar-b3", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ csv }),
-    });
-    setImportando(false);
-    const data = await res.json();
-    if (!res.ok) { setErro(data.erro ?? "Erro ao importar."); return; }
-    setResultado(`${data.importados} operação(ões) importada(s) com sucesso.`);
-    onSuccess?.();
+    try {
+      let csv: string;
+      if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
+        csv = await xlsxParaCsv(file);
+      } else {
+        csv = await file.text();
+      }
+      const res = await fetch("/api/lancamentos-ativos/importar-b3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErro(data.erro ?? "Erro ao importar."); return; }
+      setResultado(`${data.importados} operação(ões) importada(s) com sucesso.`);
+      onSuccess?.();
+    } catch {
+      setErro("Erro ao ler o arquivo. Tente novamente.");
+    } finally {
+      setImportando(false);
+    }
   }
 
   function onArquivo(e: React.ChangeEvent<HTMLInputElement>) {
@@ -77,8 +95,8 @@ export function ImportarB3Modal({ onSuccess }: Props) {
         >
           <Upload size={28} className="text-foreground/30" />
           <p className="text-sm text-foreground/50">Arraste o arquivo ou clique para selecionar</p>
-          <p className="text-xs text-foreground/30">.CSV exportado da B3</p>
-          <input ref={inputRef} type="file" accept=".csv,.txt" className="hidden" onChange={onArquivo} />
+          <p className="text-xs text-foreground/30">.XLSX ou .CSV exportado da B3</p>
+          <input ref={inputRef} type="file" accept=".xlsx,.xls,.csv,.txt" className="hidden" onChange={onArquivo} />
         </div>
 
         {importando && <p className="mt-3 text-center text-sm text-foreground/50">Importando...</p>}
