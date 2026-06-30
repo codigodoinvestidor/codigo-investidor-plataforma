@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { TrendingUp } from "lucide-react";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { GraficoComparativo } from "@/components/rentabilidade/grafico-comparativo";
 import { TabelaComparativa } from "@/components/rentabilidade/tabela-comparativa";
 
 type Ponto = { data: string; carteira: number; ibov: number | null; cdi: number; ipca: number };
+type TodosPeriodos = Record<number, Ponto[]>;
 
 const PERIODOS = [
   { label: "1M", meses: 1 },
@@ -31,32 +32,32 @@ function SkeletonGrafico() {
 
 export function RentabilidadeContent() {
   const [periodo, setPeriodo] = useState(12);
-  const [dados, setDados] = useState<Ponto[] | null>(null);
+  const [todos, setTodos] = useState<TodosPeriodos | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [vazio, setVazio] = useState(false);
 
-  const carregar = useCallback(async (meses: number) => {
-    setCarregando(true);
-    try {
-      const res = await fetch(`/api/rentabilidade?periodo=${meses}`);
-      const json = await res.json();
-      if (json.vazio) { setVazio(true); setDados(null); }
-      else { setVazio(false); setDados(json); }
-    } catch {
-      setDados(null);
-    } finally {
-      setCarregando(false);
-    }
+  useEffect(() => {
+    fetch("/api/rentabilidade")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.vazio) {
+          setVazio(true);
+        } else {
+          // API retorna chaves como strings → converte para número
+          const normalizado: TodosPeriodos = {};
+          for (const [k, v] of Object.entries(json)) {
+            normalizado[Number(k)] = v as Ponto[];
+          }
+          setTodos(normalizado);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setCarregando(false));
   }, []);
 
-  useEffect(() => { carregar(periodo); }, []);
-
-  function selecionarPeriodo(meses: number) {
-    setPeriodo(meses);
-    carregar(meses);
-  }
-
+  const dados = todos?.[periodo] ?? null;
   const ultimoPonto = dados?.[dados.length - 1];
+
   const formatarPct = (v: number | null | undefined) => {
     if (v == null) return "—";
     return `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
@@ -74,7 +75,7 @@ export function RentabilidadeContent() {
           {PERIODOS.map((op) => (
             <button
               key={op.meses}
-              onClick={() => selecionarPeriodo(op.meses)}
+              onClick={() => setPeriodo(op.meses)}
               disabled={carregando}
               className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                 periodo === op.meses

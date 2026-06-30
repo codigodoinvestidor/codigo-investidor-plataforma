@@ -4,11 +4,13 @@ import { buscarCdi, buscarIpca } from "@/lib/bacen";
 
 type AtivoParaRentabilidade = { ticker: string; quantidade: number };
 type PontoSerie = { data: string; preco: number };
+export type PontoRentabilidade = { data: string; carteira: number; ibov: number | null; cdi: number; ipca: number };
+export type TodosPeriodos = Record<number, PontoRentabilidade[]>;
 
 const TICKER_IBOV = "^BVSP";
 const TOLERANCIA_DIAS_IBOV = 7;
-// Sempre busca 5y — um único cache por ticker, todos os períodos reusam
 const RANGE_MAXIMO = "5y";
+const PERIODOS = [1, 3, 6, 12, 24, 60];
 
 function dataIso(d: Date) {
   return d.toISOString().slice(0, 10);
@@ -39,20 +41,15 @@ function gerarSnapshots(meses: number): Date[] {
   });
 }
 
-async function _calcular(ativos: AtivoParaRentabilidade[], periodoMeses: number) {
+function calcularPeriodo(
+  ativos: AtivoParaRentabilidade[],
+  historicos: Map<string, PontoSerie[]>,
+  historicoIbov: PontoSerie[],
+  cdiDiario: { data: string; valorPct: number }[],
+  ipcaMensal: { data: string; valorPct: number }[],
+  periodoMeses: number
+): PontoRentabilidade[] {
   const snapshots = gerarSnapshots(periodoMeses);
-  const tickersUnicos = Array.from(new Set(ativos.map((a) => a.ticker)));
-
-  // Todos os históricos em paralelo, sempre range 5y (um cache por ticker)
-  const [resultadosTickers, historicoIbov, cdiDiario, ipcaMensal] = await Promise.all([
-    Promise.all(tickersUnicos.map((t) =>
-      obterHistoricoComCache(t, RANGE_MAXIMO, "1d").then((h) => [t, h] as const)
-    )),
-    obterHistoricoComCache(TICKER_IBOV, RANGE_MAXIMO, "1d"),
-    buscarCdi(),
-    buscarIpca(),
-  ]);
-  const historicos = new Map<string, PontoSerie[]>(resultadosTickers);
 
   const valoresCarteira = snapshots.map((data) => {
     const dataLimite = dataIso(data);
@@ -68,7 +65,6 @@ async function _calcular(ativos: AtivoParaRentabilidade[], periodoMeses: number)
 
   const baseCarteira = valoresCarteira.find((v) => v > 0) ?? 0;
   const baseIbov = valoresIbov.find((v) => v != null) ?? null;
-
   const dataInicioStr = dataIso(snapshots[0]);
 
   return snapshots.map((data, i) => {
@@ -92,15 +88,34 @@ async function _calcular(ativos: AtivoParaRentabilidade[], periodoMeses: number)
   });
 }
 
-// Cache por 1h por (userId+tickers+periodo) — troca de período é instantânea após primeira carga
-export function calcularRentabilidadeComparada(
-  ativos: AtivoParaRentabilidade[],
-  periodoMeses = 12
-) {
+async function _calcularTodos(ativos: AtivoParaRentabilidade[]): Promise<TodosPeriodos> {
+  const tickersUnicos = Array.from(new Set(ativos.map((a) => a.ticker)));
+
+  // Uma única chamada para todos os dados externos
+  const [resultadosTickers, historicoIbov, cdiDiario, ipcaMensal] = await Promise.all([
+    Promise.all(tickersUnicos.map((t) =>
+      obterHistoricoComCache(t, RANGE_MAXIMO, "1d").then((h) => [t, h] as const)
+    )),
+    obterHistoricoComCache(TICKER_IBOV, RANGE_MAXIMO, "1d"),
+    buscarCdi(),
+    buscarIpca(),
+  ]);
+  const historicos = new Map<string, PontoSerie[]>(resultadosTickers);
+
+  // Calcula todos os períodos com os dados já em memória (sem I/O adicional)
+  const resultado: TodosPeriodos = {};
+  for (const meses of PERIODOS) {
+    resultado[meses] = calcularPeriodo(ativos, historicos, historicoIbov, cdiDiario, ipcaMensal, meses);
+  }
+  return resultado;
+}
+
+// Cache 1h por conjunto de ativos — todos os períodos num único cache entry
+export function calcularTodosPeriodos(ativos: AtivoParaRentabilidade[]) {
   const chave = ativos.map((a) => `${a.ticker}:${a.quantidade}`).sort().join(",");
   return unstable_cache(
-    () => _calcular(ativos, periodoMeses),
-    [`rentabilidade-${chave}-${periodoMeses}`],
+    () => _calcularTodos(ativos),
+    [`rentabilidade-todos-${chave}`],
     { revalidate: 3600, tags: ["rentabilidade"] }
   )();
 }
