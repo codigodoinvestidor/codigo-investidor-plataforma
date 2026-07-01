@@ -10,7 +10,7 @@ import { ListaProventos } from "@/components/proventos/lista-proventos";
 import { GraficoEvolucaoProventos } from "@/components/proventos/grafico-evolucao-proventos";
 import { GraficoAlocacao } from "@/components/patrimonio/grafico-alocacao";
 import { HistoricoMensalProventos } from "@/components/proventos/historico-mensal-proventos";
-import { evolucaoProventos, distribuicaoPorTicker } from "@/lib/calculo-proventos";
+import { evolucaoProventos, distribuicaoPorTicker, mediaMensal12Meses } from "@/lib/calculo-proventos";
 
 type ProventoApi = {
   id: string;
@@ -75,15 +75,8 @@ export function ProventosContent({
 
   const hoje = new Date();
   const anoAtual = hoje.getFullYear();
-  const mesAtual = hoje.getMonth();
 
-  const proventosRecebidos12m = proventosCalculo.filter((p) => {
-    const diffMeses =
-      (anoAtual - p.dataPagamento.getFullYear()) * 12 + (mesAtual - p.dataPagamento.getMonth());
-    return diffMeses >= 0 && diffMeses < 12;
-  });
-  const total12Meses = proventosRecebidos12m.reduce((s, p) => s + p.valorTotal, 0);
-  const mediaMensal12Meses = total12Meses / 12;
+  const { total12Meses, mediaMensal } = mediaMensal12Meses(proventosCalculo);
   const totalGeral = proventosCalculo.reduce((s, p) => s + p.valorTotal, 0);
 
   const evolucao = evolucaoProventos(proventosCalculo);
@@ -100,7 +93,7 @@ export function ProventosContent({
   return (
     <>
       <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <CartaoResumo titulo="Média mensal (12m)" valor={formatar(mediaMensal12Meses)} icone={Target} tom="neutro" />
+        <CartaoResumo titulo="Média mensal (12m)" valor={formatar(mediaMensal)} icone={Target} tom="neutro" />
         <CartaoResumo titulo="Total últimos 12 meses" valor={formatar(total12Meses)} icone={Coins} tom="positivo" />
         <CartaoResumo titulo="Total recebido (geral)" valor={formatar(totalGeral)} icone={Wallet} tom="neutro" />
       </section>

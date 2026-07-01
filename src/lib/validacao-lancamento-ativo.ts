@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const lancamentoAtivoSchema = z.object({
   tipo: z.enum(["COMPRA", "VENDA"]),
-  ticker: z.string().min(1).max(10).toUpperCase(),
+  ticker: z.string().min(1).max(10).toUpperCase().optional().nullable(),
   nome: z.string().max(100).optional().nullable(),
   quantidade: z.coerce.number().positive(),
   precoUnitario: z.coerce.number().positive(),

@@ -30,24 +30,25 @@ export async function POST(request: Request) {
     data: { ...resultado.data, userId: user.id },
   });
 
-  // Se tiver ticker (ação/FII/ETF), cria um lançamento COMPRA correspondente
-  if (ativo.ticker) {
-    const qtd = Number(ativo.quantidade);
-    const preco = Number(ativo.valorCompraUnitario);
-    await prisma.lancamentoAtivo.create({
-      data: {
-        userId: user.id,
-        tipo: "COMPRA",
-        ticker: ativo.ticker,
-        nome: ativo.nome,
-        quantidade: qtd,
-        precoUnitario: preco,
-        valorTotal: qtd * preco,
-        dataOperacao: ativo.dataCompra,
-        corretora: null,
-      },
-    });
-  }
+  // Todo ativo criado no Patrimônio gera um lançamento COMPRA correspondente
+  // em Lançamentos — ativos com ticker são agrupados por ticker, os demais
+  // (veículo, imóvel, renda fixa, outro) por ativoId.
+  const qtd = Number(ativo.quantidade);
+  const preco = Number(ativo.valorCompraUnitario);
+  await prisma.lancamentoAtivo.create({
+    data: {
+      userId: user.id,
+      tipo: "COMPRA",
+      ticker: ativo.ticker,
+      ativoId: ativo.ticker ? null : ativo.id,
+      nome: ativo.nome,
+      quantidade: qtd,
+      precoUnitario: preco,
+      valorTotal: qtd * preco,
+      dataOperacao: ativo.dataCompra,
+      corretora: null,
+    },
+  });
 
   revalidateTag(`ativos-${user.id}`, {});
   return NextResponse.json(ativo, { status: 201 });

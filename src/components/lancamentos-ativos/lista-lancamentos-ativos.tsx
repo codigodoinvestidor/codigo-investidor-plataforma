@@ -7,7 +7,7 @@ import { EditarLancamentoAtivoModal } from "./editar-lancamento-ativo-modal";
 export type LancamentoAtivoItem = {
   id: string;
   tipo: "COMPRA" | "VENDA";
-  ticker: string;
+  ticker: string | null;
   nome: string | null;
   quantidade: string;
   precoUnitario: string;
@@ -37,14 +37,15 @@ export function ListaLancamentosAtivos({ lancamentos, onRefresh }: Props) {
     );
   }
 
-  // agrupa por ticker para resumo
+  // agrupa por ticker para resumo (ativos sem ticker, como veículo/imóvel, ficam de fora)
   const resumoPorTicker = Object.values(
-    lancamentos.reduce<Record<string, { ticker: string; qtdLiq: number; totalInvestido: number }>>((acc, l) => {
+    lancamentos.filter((l) => l.ticker).reduce<Record<string, { ticker: string; qtdLiq: number; totalInvestido: number }>>((acc, l) => {
+      const ticker = l.ticker as string;
       const qtd = parseFloat(l.quantidade);
       const valor = parseFloat(l.valorTotal);
-      if (!acc[l.ticker]) acc[l.ticker] = { ticker: l.ticker, qtdLiq: 0, totalInvestido: 0 };
-      if (l.tipo === "COMPRA") { acc[l.ticker].qtdLiq += qtd; acc[l.ticker].totalInvestido += valor; }
-      else { acc[l.ticker].qtdLiq -= qtd; acc[l.ticker].totalInvestido -= valor; }
+      if (!acc[ticker]) acc[ticker] = { ticker, qtdLiq: 0, totalInvestido: 0 };
+      if (l.tipo === "COMPRA") { acc[ticker].qtdLiq += qtd; acc[ticker].totalInvestido += valor; }
+      else { acc[ticker].qtdLiq -= qtd; acc[ticker].totalInvestido -= valor; }
       return acc;
     }, {})
   ).filter((r) => r.qtdLiq > 0).sort((a, b) => b.totalInvestido - a.totalInvestido);
@@ -88,7 +89,9 @@ export function ListaLancamentosAtivos({ lancamentos, onRefresh }: Props) {
                     {l.tipo === "COMPRA" ? "Compra" : "Venda"}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 text-center font-mono font-semibold text-foreground">{l.ticker}</td>
+                <td className="px-3 py-2.5 text-center font-mono font-semibold text-foreground">
+                  {l.ticker ?? <span className="font-sans font-normal italic text-foreground/60">{l.nome ?? "—"}</span>}
+                </td>
                 <td className="px-3 py-2.5 text-center text-foreground/70">{parseFloat(l.quantidade).toLocaleString("pt-BR")}</td>
                 <td className="px-3 py-2.5 text-center text-foreground/70">{fmt(l.precoUnitario)}</td>
                 <td className="px-3 py-2.5 text-center font-medium text-foreground">{fmt(l.valorTotal)}</td>

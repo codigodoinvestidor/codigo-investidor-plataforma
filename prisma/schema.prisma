@@ -87,13 +87,16 @@ enum TipoOperacao {
   VENDA
 }
 
-// Histórico de operações de compra e venda de ativos em bolsa.
-// Pode ser inserido manualmente ou importado via CSV da B3.
+// Histórico de operações de compra e venda de ativos.
+// Ativos com ticker (bolsa) são agrupados por ticker; ativos sem ticker
+// (veículo, imóvel, renda fixa, outro) são agrupados por ativoId, já que
+// não há um identificador natural pra casar as operações entre si.
 model LancamentoAtivo {
   id            String       @id @default(uuid())
   userId        String
   tipo          TipoOperacao
-  ticker        String
+  ticker        String?
+  ativoId       String?
   nome          String?
   quantidade    Decimal      @db.Decimal(18, 6)
   precoUnitario Decimal      @db.Decimal(14, 4)
@@ -105,7 +108,28 @@ model LancamentoAtivo {
 
   @@index([userId])
   @@index([userId, ticker])
+  @@index([userId, ativoId])
   @@map("lancamentos_ativos")
+}
+
+enum TipoMeta {
+  PATRIMONIO
+  DIVIDENDOS
+}
+
+// Meta ativa por tipo — editar é um upsert, sem histórico de metas antigas.
+// dataAlvo só faz sentido pra meta de Patrimônio.
+model Meta {
+  id           String    @id @default(uuid())
+  userId       String
+  tipo         TipoMeta
+  valorAlvo    Decimal   @db.Decimal(14, 2)
+  dataAlvo     DateTime?
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+
+  @@unique([userId, tipo])
+  @@map("metas")
 }
 
 // Cache compartilhado entre todos os usuários: um ticker é buscado uma vez

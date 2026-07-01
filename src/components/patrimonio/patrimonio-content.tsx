@@ -11,21 +11,7 @@ import { GraficoEvolucao } from "@/components/patrimonio/grafico-evolucao";
 import { AcordeaoAtivos } from "@/components/patrimonio/acordeao-ativos";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { rotuloTipoAtivo } from "@/lib/ativos";
-import { evolucaoValorAplicado } from "@/lib/calculo-patrimonio";
-import type { AtivoComValor } from "@/lib/tipos-patrimonio";
-
-type AtivoApi = {
-  id: string;
-  tipo: string;
-  ticker: string | null;
-  nome: string;
-  quantidade: string;
-  valorCompraUnitario: string;
-  dataCompra: string;
-  percentualIdeal: string | null;
-};
-
-type CotacoesApi = Record<string, { preco: number; variacaoDia: number | null }>;
+import { evolucaoValorAplicado, calcularAtivosComValor, type AtivoApi, type CotacoesApi } from "@/lib/calculo-patrimonio";
 
 function Skeleton() {
   return (
@@ -61,35 +47,7 @@ export function PatrimonioContent({ initialData }: { initialData?: AtivoApi[] })
 
   if (loading || !ativos) return <Skeleton />;
 
-  const ativosComValor: AtivoComValor[] = ativos.map((a) => {
-    const quantidade = Number(a.quantidade);
-    const valorCompraUnitario = Number(a.valorCompraUnitario);
-    const valorCompra = quantidade * valorCompraUnitario;
-    const cotacao = a.ticker ? cotacoes[a.ticker] : undefined;
-    const temCotacao = cotacao !== undefined;
-    const precoAtual = cotacao?.preco ?? valorCompraUnitario;
-    const valorAtual = quantidade * precoAtual;
-    const ganho = valorAtual - valorCompra;
-    const rentabilidadePct = valorCompra > 0 ? (ganho / valorCompra) * 100 : 0;
-
-    return {
-      id: a.id,
-      tipo: a.tipo as AtivoComValor["tipo"],
-      ticker: a.ticker,
-      nome: a.nome,
-      quantidade: a.quantidade,
-      valorCompraUnitario: a.valorCompraUnitario,
-      dataCompra: a.dataCompra,
-      percentualIdeal: a.percentualIdeal ? Number(a.percentualIdeal) : null,
-      precoAtual,
-      valorAtual,
-      valorCompra,
-      ganho,
-      rentabilidadePct,
-      temCotacao,
-      variacaoDia: cotacao?.variacaoDia ?? null,
-    };
-  });
+  const ativosComValor = calcularAtivosComValor(ativos, cotacoes);
 
   const valorTotalPatrimonio = ativosComValor.reduce((s, a) => s + a.valorAtual, 0);
   const valorTotalAplicado = ativosComValor.reduce((s, a) => s + a.valorCompra, 0);

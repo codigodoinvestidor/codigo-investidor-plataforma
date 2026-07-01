@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     data: { ...rest, dataOperacao: new Date(dataOperacao), userId: user.id },
   });
 
-  await sincronizarAtivo(user.id, lancamento.ticker);
+  if (lancamento.ticker) await sincronizarAtivo(user.id, lancamento.ticker);
 
   return NextResponse.json({ id: lancamento.id }, { status: 201 });
 }

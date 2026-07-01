@@ -25,7 +25,7 @@ export function EditarLancamentoAtivoModal({ lancamento, onFechar, onRefresh }: 
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        tipo, ticker: ticker.toUpperCase(), quantidade: qtd,
+        tipo, ticker: ticker ? ticker.toUpperCase() : null, quantidade: qtd,
         precoUnitario: preco, valorTotal: qtd * preco,
         dataOperacao, corretora: corretora || null,
       }),
@@ -61,7 +61,11 @@ export function EditarLancamentoAtivoModal({ lancamento, onFechar, onRefresh }: 
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className="mb-1 block text-xs text-foreground/50">Ticker</label>
-              <input value={ticker} onChange={(e) => setTicker(e.target.value.toUpperCase())} required className="input w-full uppercase" />
+              {ticker ? (
+                <input value={ticker} onChange={(e) => setTicker(e.target.value.toUpperCase())} required className="input w-full uppercase" />
+              ) : (
+                <p className="input-base flex items-center text-foreground/70">{lancamento.nome ?? "—"}</p>
+              )}
             </div>
             <div>
               <label className="mb-1 block text-xs text-foreground/50">Quantidade</label>

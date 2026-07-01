@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { TIPOS_ATIVO, type TipoAtivo } from "@/lib/ativos";
 import { EditarAtivoModal, type AtivoEditavel } from "@/components/patrimonio/editar-ativo-modal";
+import { VenderAtivoModal, type AtivoParaVenda } from "@/components/patrimonio/vender-ativo-modal";
 import { DetalheGrupoAtivos } from "@/components/patrimonio/detalhe-grupo-ativos";
 import type { AtivoComValor } from "@/lib/tipos-patrimonio";
 
@@ -22,6 +23,7 @@ export function AcordeaoAtivos({
 }) {
   const router = useRouter();
   const [editando, setEditando] = useState<AtivoEditavel | null>(null);
+  const [vendendo, setVendendo] = useState<AtivoParaVenda | null>(null);
   const [abertos, setAbertos] = useState<Set<TipoAtivo>>(new Set(TIPOS_ATIVO.map((t) => t.valor)));
 
   async function excluir(id: string) {
@@ -92,6 +94,7 @@ export function AcordeaoAtivos({
                   valorTotalPatrimonio={valorTotalPatrimonio}
                   onEditar={setEditando}
                   onExcluir={excluir}
+                  onVender={setVendendo}
                 />
               )}
             </div>
@@ -100,6 +103,7 @@ export function AcordeaoAtivos({
       </div>
 
       {editando && <EditarAtivoModal ativo={editando} onFechar={() => setEditando(null)} onRefresh={onRefresh} />}
+      {vendendo && <VenderAtivoModal ativo={vendendo} onFechar={() => setVendendo(null)} onRefresh={onRefresh} />}
     </>
   );
 }

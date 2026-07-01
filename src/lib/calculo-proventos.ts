@@ -27,6 +27,26 @@ export function evolucaoProventos(proventos: ProventoCalculo[], meses = 12) {
   return pontos;
 }
 
+// Total recebido nos últimos 12 meses e a média mensal correspondente —
+// usado no cartão de resumo de Proventos e na meta de dividendos em Metas.
+export function mediaMensal12Meses(proventos: ProventoCalculo[]) {
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtual = hoje.getMonth();
+
+  const recebidos12m = proventos.filter((p) => {
+    const diffMeses = (anoAtual - p.dataPagamento.getFullYear()) * 12 + (mesAtual - p.dataPagamento.getMonth());
+    return diffMeses >= 0 && diffMeses < 12;
+  });
+  const total12Meses = recebidos12m.reduce((s, p) => s + p.valorTotal, 0);
+
+  const recebidoMesAtual = proventos
+    .filter((p) => p.dataPagamento.getFullYear() === anoAtual && p.dataPagamento.getMonth() === mesAtual)
+    .reduce((s, p) => s + p.valorTotal, 0);
+
+  return { total12Meses, mediaMensal: total12Meses / 12, recebidoMesAtual };
+}
+
 export function resumoAnualProventos(proventos: ProventoCalculo[], ano: number) {
   const meses = Array.from({ length: 12 }, (_, i) => {
     const total = proventos

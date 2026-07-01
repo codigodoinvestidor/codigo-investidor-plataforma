@@ -57,3 +57,43 @@ export async function sincronizarAtivo(userId: string, ticker: string) {
     });
   }
 }
+
+// Mesma lógica de sincronizarAtivo, mas para ativos sem ticker (veículo,
+// imóvel, renda fixa, outro), agrupados pelo id do Ativo em vez do ticker —
+// não há como adivinhar tipo/nome desses ativos, então se o Ativo já tiver
+// sido apagado (posição zerada) não há recriação, só atualização/exclusão.
+export async function sincronizarAtivoPorId(userId: string, ativoId: string) {
+  const lancamentos = await prisma.lancamentoAtivo.findMany({
+    where: { userId, ativoId },
+  });
+
+  let qtdLiquida = 0;
+  let custoTotal = 0;
+
+  for (const l of lancamentos) {
+    const qtd = Number(l.quantidade);
+    const valor = Number(l.valorTotal);
+    if (l.tipo === "COMPRA") {
+      qtdLiquida += qtd;
+      custoTotal += valor;
+    } else {
+      qtdLiquida -= qtd;
+      custoTotal -= valor;
+    }
+  }
+
+  const existente = await prisma.ativo.findUnique({ where: { id: ativoId } });
+  if (!existente || existente.userId !== userId) return;
+
+  if (qtdLiquida <= 0) {
+    await prisma.ativo.delete({ where: { id: ativoId } });
+    return;
+  }
+
+  const precoMedio = custoTotal > 0 ? custoTotal / qtdLiquida : Number(existente.valorCompraUnitario);
+
+  await prisma.ativo.update({
+    where: { id: ativoId },
+    data: { quantidade: qtdLiquida, valorCompraUnitario: precoMedio },
+  });
+}

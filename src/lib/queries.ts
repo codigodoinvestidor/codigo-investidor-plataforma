@@ -55,3 +55,10 @@ export const getAtivosComTicker = (userId: string) =>
     [`ativos-ticker-${userId}`],
     { revalidate: 60, tags: [`ativos-${userId}`] }
   )();
+
+export const getMetas = (userId: string) =>
+  unstable_cache(
+    () => prisma.meta.findMany({ where: { userId } }),
+    [`metas-${userId}`],
+    { revalidate: 60, tags: [`metas-${userId}`] }
+  )();

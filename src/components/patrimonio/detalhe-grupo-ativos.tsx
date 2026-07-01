@@ -1,8 +1,9 @@
 "use client";
 
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Banknote } from "lucide-react";
 import type { AtivoEditavel } from "@/components/patrimonio/editar-ativo-modal";
+import type { AtivoParaVenda } from "@/components/patrimonio/vender-ativo-modal";
 import { paraAtivoEditavel, type AtivoComValor } from "@/lib/tipos-patrimonio";
 
 const CORES = ["#3b82f6", "#10b981", "#d4af37", "#ef4444", "#06b6d4", "#a855f7", "#f97316", "#ec4899"];
@@ -15,11 +16,13 @@ export function DetalheGrupoAtivos({
   valorTotalPatrimonio,
   onEditar,
   onExcluir,
+  onVender,
 }: {
   itens: AtivoComValor[];
   valorTotalPatrimonio: number;
   onEditar: (a: AtivoEditavel) => void;
   onExcluir: (id: string) => void;
+  onVender: (a: AtivoParaVenda) => void;
 }) {
   const comValor = [...itens].sort((a, b) => b.valorAtual - a.valorAtual);
 
@@ -124,6 +127,13 @@ export function DetalheGrupoAtivos({
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center justify-end gap-2 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
+                      <button
+                        onClick={() => onVender({ id: a.id, ticker: a.ticker, nome: a.nome, quantidade: Number(a.quantidade), precoAtual: a.precoAtual })}
+                        className="text-foreground/40 hover:text-emerald-500"
+                        aria-label="Vender / retirar ativo"
+                      >
+                        <Banknote size={13} />
+                      </button>
                       <button
                         onClick={() => onEditar(paraAtivoEditavel(a))}
                         className="text-foreground/40 hover:text-dourado"
