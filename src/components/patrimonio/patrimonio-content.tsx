@@ -161,18 +161,20 @@ export function PatrimonioContent({ initialData }: { initialData?: AtivoApi[] })
             <p className="mb-4 text-sm text-foreground/55">Como seu patrimônio está distribuído.</p>
             <GraficoAlocacao dados={alocacaoPorTipo} />
           </div>
+        </div>
+      </section>
 
-          <div className="card p-6">
-            <div className="mb-1 flex items-center justify-between">
-              <h2 className="font-display text-lg text-foreground">Meus ativos</h2>
-              <div className="flex items-center gap-2">
-                <ImportarPosicaoB3Modal onSuccess={carregar} />
-                <BotaoExportarCsv href="/api/ativos/exportar" />
-              </div>
+      <section className="mt-6">
+        <div className="card p-6">
+          <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-lg text-foreground">Meus ativos</h2>
+            <div className="flex items-center gap-2">
+              <ImportarPosicaoB3Modal onSuccess={carregar} />
+              <BotaoExportarCsv href="/api/ativos/exportar" />
             </div>
-            <p className="mb-4 text-sm text-foreground/55">Agrupados por classe. Cotação em tempo real para ações, FIIs e ETFs.</p>
-            <AcordeaoAtivos ativos={ativosComValor} valorTotalPatrimonio={valorTotalPatrimonio} onRefresh={carregar} />
           </div>
+          <p className="mb-4 text-sm text-foreground/55">Agrupados por classe. Cotação em tempo real para ações, FIIs e ETFs.</p>
+          <AcordeaoAtivos ativos={ativosComValor} valorTotalPatrimonio={valorTotalPatrimonio} onRefresh={carregar} />
         </div>
       </section>
     </>

@@ -48,15 +48,15 @@ export function DetalheGrupoAtivos({
       <div className="scrollbar-fina flex-1 overflow-x-auto">
         <table className="w-full min-w-[680px] border-collapse text-sm">
           <thead>
-            <tr className="text-left text-xs uppercase tracking-wide text-foreground/40">
-              <th className="py-1.5 pr-2">Ativo</th>
-              <th className="px-2 py-1.5 text-right">Saldo</th>
-              <th className="px-2 py-1.5 text-right">Dia</th>
-              <th className="px-2 py-1.5 text-right">Rentab.</th>
-              <th className="px-2 py-1.5 text-right">% Carteira</th>
-              <th className="px-2 py-1.5 text-right">% Ideal</th>
-              <th className="px-2 py-1.5 text-center">Comprar?</th>
-              <th className="py-1.5 pl-2" />
+            <tr className="text-center text-xs uppercase tracking-wide text-foreground/40">
+              <th className="px-3 py-2 text-left">Ativo</th>
+              <th className="px-3 py-2 text-right">Saldo</th>
+              <th className="px-3 py-2 text-right">Dia</th>
+              <th className="px-3 py-2 text-right">Rentab.</th>
+              <th className="px-3 py-2 text-right">% Carteira</th>
+              <th className="px-3 py-2 text-right">% Ideal</th>
+              <th className="px-3 py-2">Comprar?</th>
+              <th className="px-3 py-2" />
             </tr>
           </thead>
           <tbody className="divide-y divide-borda">
@@ -67,7 +67,7 @@ export function DetalheGrupoAtivos({
 
               return (
                 <tr key={a.id} className="group">
-                  <td className="py-2 pr-2">
+                  <td className="px-3 py-2.5">
                     <div className="flex items-center gap-2">
                       <span
                         className="h-2.5 w-2.5 shrink-0 rounded-full"
@@ -78,10 +78,10 @@ export function DetalheGrupoAtivos({
                       </span>
                     </div>
                   </td>
-                  <td className="px-2 py-2 text-right text-foreground/70">
+                  <td className="px-3 py-2.5 text-right text-foreground/70">
                     {formatarMoeda(a.valorAtual)}
                   </td>
-                  <td className="px-2 py-2 text-right">
+                  <td className="px-3 py-2.5 text-right">
                     {a.variacaoDia != null ? (
                       <span className={a.variacaoDia >= 0 ? "text-emerald-500" : "text-red-500"}>
                         {a.variacaoDia >= 0 ? "+" : ""}
@@ -91,7 +91,7 @@ export function DetalheGrupoAtivos({
                       <span className="text-foreground/30">—</span>
                     )}
                   </td>
-                  <td className="px-2 py-2 text-right">
+                  <td className="px-3 py-2.5 text-right">
                     {a.temCotacao ? (
                       <span
                         className={a.rentabilidadePct >= 0 ? "text-emerald-500" : "text-red-500"}
@@ -103,11 +103,11 @@ export function DetalheGrupoAtivos({
                       <span className="text-foreground/30">—</span>
                     )}
                   </td>
-                  <td className="px-2 py-2 text-right text-foreground/70">{pct.toFixed(1)}%</td>
-                  <td className="px-2 py-2 text-right text-foreground/55">
+                  <td className="px-3 py-2.5 text-right text-foreground/70">{pct.toFixed(1)}%</td>
+                  <td className="px-3 py-2.5 text-right text-foreground/55">
                     {temIdeal ? `${a.percentualIdeal!.toFixed(1)}%` : "—"}
                   </td>
-                  <td className="px-2 py-2 text-center">
+                  <td className="px-3 py-2.5 text-center">
                     {temIdeal ? (
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -122,8 +122,8 @@ export function DetalheGrupoAtivos({
                       <span className="text-foreground/30">—</span>
                     )}
                   </td>
-                  <td className="py-2 pl-2">
-                    <div className="flex items-center justify-end gap-2 opacity-0 transition group-hover:opacity-100">
+                  <td className="px-3 py-2.5">
+                    <div className="flex items-center justify-end gap-2 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
                       <button
                         onClick={() => onEditar(paraAtivoEditavel(a))}
                         className="text-foreground/40 hover:text-dourado"

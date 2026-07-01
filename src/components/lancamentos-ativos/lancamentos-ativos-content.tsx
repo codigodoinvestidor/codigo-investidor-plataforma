@@ -31,17 +31,17 @@ function SecaoPatrimonio({ ativos }: { ativos: AtivoPatrimonioItem[] }) {
     <div className="card p-6">
       <h2 className="mb-1 font-display text-lg text-foreground">Posição atual (Patrimônio)</h2>
       <p className="mb-4 text-sm text-foreground/50">Ativos cadastrados diretamente no Patrimônio.</p>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="scrollbar-fina overflow-x-auto">
+        <table className="w-full min-w-[680px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-borda text-xs text-foreground/40">
-              <th className="pb-2 text-left">Ticker</th>
-              <th className="pb-2 text-left">Nome</th>
-              <th className="pb-2 text-left">Tipo</th>
-              <th className="pb-2 text-right">Qtd</th>
-              <th className="pb-2 text-right">Preço compra</th>
-              <th className="pb-2 text-right">Total</th>
-              <th className="pb-2 text-left">Data compra</th>
+              <th className="px-3 pb-2 text-center">Ticker</th>
+              <th className="px-3 pb-2 text-center">Nome</th>
+              <th className="px-3 pb-2 text-center">Tipo</th>
+              <th className="px-3 pb-2 text-center">Qtd</th>
+              <th className="px-3 pb-2 text-center">Preço compra</th>
+              <th className="px-3 pb-2 text-center">Total</th>
+              <th className="px-3 pb-2 text-center">Data compra</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-borda">
@@ -49,15 +49,15 @@ function SecaoPatrimonio({ ativos }: { ativos: AtivoPatrimonioItem[] }) {
               const total = Number(a.quantidade) * Number(a.valorCompraUnitario);
               return (
                 <tr key={a.id}>
-                  <td className="py-2.5 pr-3 font-mono font-semibold text-foreground">{a.ticker}</td>
-                  <td className="py-2.5 pr-3 text-foreground/70">{a.nome}</td>
-                  <td className="py-2.5 pr-3">
+                  <td className="px-3 py-2.5 text-center font-mono font-semibold text-foreground">{a.ticker}</td>
+                  <td className="px-3 py-2.5 text-center text-foreground/70">{a.nome}</td>
+                  <td className="px-3 py-2.5 text-center">
                     <span className="rounded-full bg-dourado/10 px-2 py-0.5 text-xs text-dourado">{a.tipo}</span>
                   </td>
-                  <td className="py-2.5 pr-3 text-right text-foreground/70">{Number(a.quantidade).toLocaleString("pt-BR")}</td>
-                  <td className="py-2.5 pr-3 text-right text-foreground/70">{fmt(a.valorCompraUnitario)}</td>
-                  <td className="py-2.5 pr-3 text-right font-medium text-foreground">{fmt(total)}</td>
-                  <td className="py-2.5 text-foreground/50">{new Date(a.dataCompra).toLocaleDateString("pt-BR")}</td>
+                  <td className="px-3 py-2.5 text-center text-foreground/70">{Number(a.quantidade).toLocaleString("pt-BR")}</td>
+                  <td className="px-3 py-2.5 text-center text-foreground/70">{fmt(a.valorCompraUnitario)}</td>
+                  <td className="px-3 py-2.5 text-center font-medium text-foreground">{fmt(total)}</td>
+                  <td className="px-3 py-2.5 text-center text-foreground/50">{new Date(a.dataCompra).toLocaleDateString("pt-BR")}</td>
                 </tr>
               );
             })}

@@ -65,14 +65,14 @@ export function ListaLancamentos({ lancamentos, onRefresh }: { lancamentos: Lanc
               </span>
               <button
                 onClick={() => setEditando(l)}
-                className="text-foreground/30 opacity-0 transition group-hover:opacity-100 hover:text-dourado"
+                className="text-foreground/30 opacity-100 transition hover:text-dourado sm:opacity-0 sm:group-hover:opacity-100"
                 aria-label="Editar lançamento"
               >
                 <Pencil size={15} />
               </button>
               <button
                 onClick={() => excluir(l.id)}
-                className="text-foreground/30 opacity-0 transition group-hover:opacity-100 hover:text-red-500"
+                className="text-foreground/30 opacity-100 transition hover:text-red-500 sm:opacity-0 sm:group-hover:opacity-100"
                 aria-label="Excluir lançamento"
               >
                 <Trash2 size={15} />

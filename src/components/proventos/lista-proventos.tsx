@@ -68,7 +68,7 @@ export function ListaProventos({ proventos, onRefresh }: { proventos: ProventoEd
                     {formatarMoeda(Number(p.valorTotal))}
                   </td>
                   <td className="py-2.5 pl-2">
-                    <div className="flex items-center justify-end gap-2 opacity-0 transition group-hover:opacity-100">
+                    <div className="flex items-center justify-end gap-2 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
                       <button
                         onClick={() => setEditando(p)}
                         className="text-foreground/40 hover:text-dourado"

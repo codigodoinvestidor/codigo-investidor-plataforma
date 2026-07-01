@@ -56,19 +56,19 @@ export function AppHeader({ nome }: { nome?: string | null }) {
         </div>
       </div>
 
-      <nav className="flex items-center gap-1 border-t border-borda px-4 py-2 sm:hidden">
+      <nav className="flex items-center gap-0.5 border-t border-borda px-1.5 py-1.5 sm:hidden">
         {NAV.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] font-medium leading-none transition ${
               pathname === item.href
                 ? "bg-dourado text-navy"
                 : "text-foreground/60 hover:text-foreground"
             }`}
           >
-            <item.icone size={14} />
-            {item.rotulo}
+            <item.icone size={16} />
+            <span className="truncate">{item.rotulo}</span>
           </Link>
         ))}
       </nav>
