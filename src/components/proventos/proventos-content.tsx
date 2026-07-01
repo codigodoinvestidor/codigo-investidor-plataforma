@@ -7,6 +7,7 @@ import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { NovoProventoForm } from "@/components/proventos/novo-provento-form";
 import { ListaProventos } from "@/components/proventos/lista-proventos";
+import { ProventosMercado } from "@/components/proventos/proventos-mercado";
 import { GraficoEvolucaoProventos } from "@/components/proventos/grafico-evolucao-proventos";
 import { GraficoAlocacao } from "@/components/patrimonio/grafico-alocacao";
 import { HistoricoMensalProventos } from "@/components/proventos/historico-mensal-proventos";
@@ -123,6 +124,14 @@ export function ProventosContent({
             </div>
             <p className="mb-4 text-sm text-foreground/55">Histórico de pagamentos.</p>
             <ListaProventos proventos={proventos} onRefresh={carregar} />
+          </div>
+
+          <div className="card p-6">
+            <h2 className="mb-1 font-display text-lg text-foreground">Proventos do mercado</h2>
+            <p className="mb-4 text-sm text-foreground/55">
+              Pagamentos dos ativos da sua carteira que talvez você ainda não tenha registrado.
+            </p>
+            <ProventosMercado onRegistrado={carregar} />
           </div>
         </div>
       </section>

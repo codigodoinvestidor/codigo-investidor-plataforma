@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Banknote } from "lucide-react";
 import { TIPOS_ATIVO, tipoExigeTicker, type TipoAtivo } from "@/lib/ativos";
+import type { AtivoComValor } from "@/lib/tipos-patrimonio";
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
-export function NovoAtivoForm({ onSuccess }: { onSuccess?: () => void } = {}) {
+function FormAdicionar({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
   const [tipo, setTipo] = useState<TipoAtivo>("ACAO");
   const [ticker, setTicker] = useState("");
@@ -76,12 +77,7 @@ export function NovoAtivoForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   }
 
   return (
-    <form onSubmit={enviar} className="card space-y-4 p-6">
-      <div>
-        <h2 className="font-display text-lg text-foreground">Novo ativo</h2>
-        <p className="text-sm text-foreground/55">Adicione ao seu patrimônio.</p>
-      </div>
-
+    <form onSubmit={enviar} className="space-y-4">
       <div>
         <label className="mb-1.5 block text-sm font-medium text-foreground/80">Tipo</label>
         <select
@@ -198,5 +194,190 @@ export function NovoAtivoForm({ onSuccess }: { onSuccess?: () => void } = {}) {
         {enviando ? "Salvando..." : "Adicionar ativo"}
       </button>
     </form>
+  );
+}
+
+function FormRetirar({ ativos, onSuccess }: { ativos: AtivoComValor[]; onSuccess?: () => void }) {
+  const router = useRouter();
+  const [ativoId, setAtivoId] = useState(ativos[0]?.id ?? "");
+  const ativoSelecionado = ativos.find((a) => a.id === ativoId);
+  const [quantidade, setQuantidade] = useState(ativoSelecionado ? String(Number(ativoSelecionado.quantidade)) : "");
+  const [precoUnitario, setPrecoUnitario] = useState(ativoSelecionado ? String(ativoSelecionado.precoAtual) : "");
+  const [dataOperacao, setDataOperacao] = useState(HOJE);
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  function selecionarAtivo(id: string) {
+    setAtivoId(id);
+    const a = ativos.find((x) => x.id === id);
+    if (a) {
+      setQuantidade(String(Number(a.quantidade)));
+      setPrecoUnitario(String(a.precoAtual));
+    }
+  }
+
+  if (ativos.length === 0) {
+    return <p className="py-4 text-sm text-foreground/50">Nenhum ativo cadastrado ainda.</p>;
+  }
+
+  async function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    setErro(null);
+    if (!ativoSelecionado) return;
+
+    const qtd = parseFloat(quantidade.replace(",", "."));
+    const preco = parseFloat(precoUnitario.replace(",", "."));
+
+    if (qtd > Number(ativoSelecionado.quantidade)) {
+      setErro(`Quantidade maior que a possuída (${Number(ativoSelecionado.quantidade).toLocaleString("pt-BR")}).`);
+      return;
+    }
+
+    setEnviando(true);
+    const resposta = await fetch(`/api/ativos/${ativoId}/vender`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quantidade: qtd, precoUnitario: preco, dataOperacao }),
+    });
+    setEnviando(false);
+
+    if (!resposta.ok) {
+      setErro("Não foi possível registrar a retirada. Confira os campos.");
+      return;
+    }
+
+    if (onSuccess) onSuccess(); else router.refresh();
+  }
+
+  const total = ativoSelecionado
+    ? (parseFloat(quantidade.replace(",", ".")) || 0) * (parseFloat(precoUnitario.replace(",", ".")) || 0)
+    : 0;
+
+  return (
+    <form onSubmit={enviar} className="space-y-4">
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-foreground/80">Ativo</label>
+        <select value={ativoId} onChange={(e) => selecionarAtivo(e.target.value)} className="input-base">
+          {ativos.map((a) => (
+            <option key={a.id} value={a.id} className="text-navy">
+              {a.ticker ?? a.nome} · {Number(a.quantidade).toLocaleString("pt-BR")}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-foreground/80">Quantidade</label>
+          <input
+            type="number"
+            step="0.000001"
+            min="0.000001"
+            max={ativoSelecionado ? Number(ativoSelecionado.quantidade) : undefined}
+            required
+            value={quantidade}
+            onChange={(e) => setQuantidade(e.target.value)}
+            className="input-base"
+          />
+          {ativoSelecionado && (
+            <p className="mt-1 text-xs text-foreground/40">
+              Possui {Number(ativoSelecionado.quantidade).toLocaleString("pt-BR")}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-foreground/80">
+            Preço unit. (R$)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="0.01"
+            required
+            value={precoUnitario}
+            onChange={(e) => setPrecoUnitario(e.target.value)}
+            className="input-base"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-foreground/80">Data da venda</label>
+        <input
+          type="date"
+          required
+          value={dataOperacao}
+          onChange={(e) => setDataOperacao(e.target.value)}
+          className="input-base"
+        />
+      </div>
+
+      {total > 0 && (
+        <p className="text-sm text-foreground/60">
+          Total: <span className="font-medium text-foreground">
+            {total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </span>
+        </p>
+      )}
+
+      {erro && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{erro}</p>}
+
+      <button
+        type="submit"
+        disabled={enviando}
+        className="btn-dourado flex w-full items-center justify-center gap-2 disabled:opacity-50"
+      >
+        <Banknote size={16} />
+        {enviando ? "Registrando..." : "Retirar ativo"}
+      </button>
+    </form>
+  );
+}
+
+export function NovoAtivoForm({ ativos, onSuccess }: { ativos?: AtivoComValor[]; onSuccess?: () => void } = {}) {
+  const [modo, setModo] = useState<"ADICIONAR" | "RETIRAR">("ADICIONAR");
+
+  return (
+    <div className="card space-y-4 p-6">
+      <div>
+        <h2 className="font-display text-lg text-foreground">
+          {modo === "ADICIONAR" ? "Novo ativo" : "Retirar ativo"}
+        </h2>
+        <p className="text-sm text-foreground/55">
+          {modo === "ADICIONAR" ? "Adicione ao seu patrimônio." : "Registre uma venda ou retirada de um ativo já cadastrado."}
+        </p>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setModo("ADICIONAR")}
+          className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
+            modo === "ADICIONAR"
+              ? "bg-dourado/20 text-dourado ring-1 ring-dourado/40"
+              : "bg-foreground/5 text-foreground/50 hover:bg-foreground/10"
+          }`}
+        >
+          + Adicionar
+        </button>
+        <button
+          type="button"
+          onClick={() => setModo("RETIRAR")}
+          className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
+            modo === "RETIRAR"
+              ? "bg-red-500/20 text-red-400 ring-1 ring-red-500/40"
+              : "bg-foreground/5 text-foreground/50 hover:bg-foreground/10"
+          }`}
+        >
+          − Retirar
+        </button>
+      </div>
+
+      {modo === "ADICIONAR" ? (
+        <FormAdicionar onSuccess={onSuccess} />
+      ) : (
+        <FormRetirar ativos={ativos ?? []} onSuccess={onSuccess} />
+      )}
+    </div>
   );
 }

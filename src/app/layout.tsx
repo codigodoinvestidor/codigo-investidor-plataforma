@@ -14,8 +14,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Código do Investidor — Plataforma",
-  description: "Gestão de renda, orçamento e patrimônio para assinantes do Código do Investidor.",
+  title: "Codigo do Investidor — Plataforma",
+  description: "Gestão de renda, orçamento e patrimônio para assinantes do Codigo do Investidor.",
 };
 
 export default function RootLayout({

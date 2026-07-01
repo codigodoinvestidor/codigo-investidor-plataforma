@@ -27,7 +27,7 @@ export function AppHeader({ nome }: { nome?: string | null }) {
           </span>
           <div>
             <p className="font-display text-base leading-tight text-foreground">
-              Código do Investidor
+              Codigo do Investidor
             </p>
             <p className="text-xs leading-tight text-foreground/50">
               {nome ? `Olá, ${nome}` : "Painel financeiro"}
