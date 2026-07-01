@@ -29,7 +29,9 @@ export default async function MetasPage() {
   }));
 
   const initialMetas = metas.map((m) => ({
+    id: m.id,
     tipo: m.tipo,
+    nome: m.nome,
     valorAlvo: m.valorAlvo.toString(),
     dataAlvo: m.dataAlvo ? new Date(m.dataAlvo).toISOString() : null,
   }));

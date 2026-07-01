@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { X, Save, Loader2 } from "lucide-react";
 import { TIPOS_ATIVO, tipoExigeTicker, type TipoAtivo } from "@/lib/ativos";
+import { normalizarDecimal, apenasNumerico } from "@/lib/numero";
 
 export type AtivoEditavel = {
   id: string;
@@ -70,10 +71,10 @@ export function EditarAtivoModal({
         tipo,
         ticker: exigeTicker ? ticker : null,
         nome,
-        quantidade,
-        valorCompraUnitario,
+        quantidade: normalizarDecimal(quantidade),
+        valorCompraUnitario: normalizarDecimal(valorCompraUnitario),
         dataCompra,
-        percentualIdeal: percentualIdeal === "" ? null : percentualIdeal,
+        percentualIdeal: percentualIdeal === "" ? null : normalizarDecimal(percentualIdeal),
       }),
     });
 
@@ -114,7 +115,7 @@ export function EditarAtivoModal({
               className="input-base"
             >
               {TIPOS_ATIVO.map((t) => (
-                <option key={t.valor} value={t.valor} className="text-navy">
+                <option key={t.valor} value={t.valor}>
                   {t.rotulo}
                 </option>
               ))}
@@ -154,12 +155,11 @@ export function EditarAtivoModal({
                 Quantidade
               </label>
               <input
-                type="number"
-                step="0.000001"
-                min="0.000001"
+                type="text"
+                inputMode="decimal"
                 required
                 value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
+                onChange={(e) => setQuantidade(apenasNumerico(e.target.value))}
                 className="input-base"
               />
             </div>
@@ -168,12 +168,11 @@ export function EditarAtivoModal({
                 Valor unit. (R$)
               </label>
               <input
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputMode="decimal"
                 required
                 value={valorCompraUnitario}
-                onChange={(e) => setValorCompraUnitario(e.target.value)}
+                onChange={(e) => setValorCompraUnitario(apenasNumerico(e.target.value))}
                 className="input-base"
               />
             </div>
@@ -197,12 +196,10 @@ export function EditarAtivoModal({
                 % ideal na carteira
               </label>
               <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="100"
+                type="text"
+                inputMode="decimal"
                 value={percentualIdeal}
-                onChange={(e) => setPercentualIdeal(e.target.value)}
+                onChange={(e) => setPercentualIdeal(apenasNumerico(e.target.value))}
                 className="input-base"
                 placeholder="Opcional"
               />

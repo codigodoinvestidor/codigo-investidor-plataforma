@@ -1,11 +1,14 @@
 import { getUser } from "@/lib/auth";
-import { getAtivosComTicker } from "@/lib/queries";
+import { getAtivosComTicker, getProventos } from "@/lib/queries";
 import { calcularTodosPeriodos } from "@/lib/rentabilidade";
 import { RentabilidadeContent } from "@/components/rentabilidade/rentabilidade-content";
 
 export default async function RentabilidadePage() {
   const user = await getUser();
-  const ativos = await getAtivosComTicker(user!.id);
+  const [ativos, proventos] = await Promise.all([
+    getAtivosComTicker(user!.id),
+    getProventos(user!.id),
+  ]);
 
   if (ativos.length === 0) {
     return <RentabilidadeContent initialData={{ vazio: true }} />;
@@ -16,6 +19,12 @@ export default async function RentabilidadePage() {
     quantidade: Number(a.quantidade),
   }));
 
-  const todos = await calcularTodosPeriodos(ativosParaCalculo);
+  const proventosParaCalculo = proventos.map((p) => ({
+    ticker: p.ticker,
+    valorTotal: Number(p.valorTotal),
+    dataPagamento: p.dataPagamento.toISOString().slice(0, 10),
+  }));
+
+  const todos = await calcularTodosPeriodos(ativosParaCalculo, proventosParaCalculo);
   return <RentabilidadeContent initialData={{ vazio: false, todos }} />;
 }

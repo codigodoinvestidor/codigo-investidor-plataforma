@@ -9,11 +9,14 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
 
-  const metas = await prisma.meta.findMany({ where: { userId: user.id } });
+  const metas = await prisma.meta.findMany({
+    where: { userId: user.id },
+    orderBy: { criadoEm: "asc" },
+  });
   return NextResponse.json(metas);
 }
 
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
@@ -22,14 +25,12 @@ export async function PUT(request: Request) {
   const resultado = metaSchema.safeParse(body);
   if (!resultado.success) return NextResponse.json({ erro: resultado.error.flatten() }, { status: 400 });
 
-  const { tipo, valorAlvo, dataAlvo } = resultado.data;
+  const { tipo, nome, valorAlvo, dataAlvo } = resultado.data;
 
-  const meta = await prisma.meta.upsert({
-    where: { userId_tipo: { userId: user.id, tipo } },
-    create: { userId: user.id, tipo, valorAlvo, dataAlvo: dataAlvo ? new Date(dataAlvo) : null },
-    update: { valorAlvo, dataAlvo: dataAlvo ? new Date(dataAlvo) : null },
+  const meta = await prisma.meta.create({
+    data: { userId: user.id, tipo, nome, valorAlvo, dataAlvo: dataAlvo ? new Date(dataAlvo) : null },
   });
 
   revalidateTag(`metas-${user.id}`, {});
-  return NextResponse.json(meta);
+  return NextResponse.json(meta, { status: 201 });
 }

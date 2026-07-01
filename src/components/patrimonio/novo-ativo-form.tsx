@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Loader2, Banknote } from "lucide-react";
 import { TIPOS_ATIVO, tipoExigeTicker, type TipoAtivo } from "@/lib/ativos";
 import type { AtivoComValor } from "@/lib/tipos-patrimonio";
+import { normalizarDecimal, apenasNumerico } from "@/lib/numero";
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
@@ -54,10 +55,10 @@ function FormAdicionar({ onSuccess }: { onSuccess?: () => void }) {
         tipo,
         ticker: exigeTicker ? ticker : null,
         nome,
-        quantidade,
-        valorCompraUnitario,
+        quantidade: normalizarDecimal(quantidade),
+        valorCompraUnitario: normalizarDecimal(valorCompraUnitario),
         dataCompra,
-        percentualIdeal: percentualIdeal === "" ? null : percentualIdeal,
+        percentualIdeal: percentualIdeal === "" ? null : normalizarDecimal(percentualIdeal),
       }),
     });
 
@@ -86,7 +87,7 @@ function FormAdicionar({ onSuccess }: { onSuccess?: () => void }) {
           className="input-base"
         >
           {TIPOS_ATIVO.map((t) => (
-            <option key={t.valor} value={t.valor} className="text-navy">
+            <option key={t.valor} value={t.valor}>
               {t.rotulo}
             </option>
           ))}
@@ -126,12 +127,11 @@ function FormAdicionar({ onSuccess }: { onSuccess?: () => void }) {
         <div>
           <label className="mb-1.5 block text-sm font-medium text-foreground/80">Quantidade</label>
           <input
-            type="number"
-            step="0.000001"
-            min="0.000001"
+            type="text"
+            inputMode="decimal"
             required
             value={quantidade}
-            onChange={(e) => setQuantidade(e.target.value)}
+            onChange={(e) => setQuantidade(apenasNumerico(e.target.value))}
             className="input-base"
             placeholder={exigeTicker ? "100" : "1"}
           />
@@ -141,12 +141,11 @@ function FormAdicionar({ onSuccess }: { onSuccess?: () => void }) {
             Valor unit. (R$)
           </label>
           <input
-            type="number"
-            step="0.01"
-            min="0.01"
+            type="text"
+            inputMode="decimal"
             required
             value={valorCompraUnitario}
-            onChange={(e) => setValorCompraUnitario(e.target.value)}
+            onChange={(e) => setValorCompraUnitario(apenasNumerico(e.target.value))}
             className="input-base"
             placeholder="0,00"
           />
@@ -171,12 +170,10 @@ function FormAdicionar({ onSuccess }: { onSuccess?: () => void }) {
             % ideal na carteira
           </label>
           <input
-            type="number"
-            step="0.1"
-            min="0"
-            max="100"
+            type="text"
+            inputMode="decimal"
             value={percentualIdeal}
-            onChange={(e) => setPercentualIdeal(e.target.value)}
+            onChange={(e) => setPercentualIdeal(apenasNumerico(e.target.value))}
             className="input-base"
             placeholder="Opcional"
           />
@@ -259,7 +256,7 @@ function FormRetirar({ ativos, onSuccess }: { ativos: AtivoComValor[]; onSuccess
         <label className="mb-1.5 block text-sm font-medium text-foreground/80">Ativo</label>
         <select value={ativoId} onChange={(e) => selecionarAtivo(e.target.value)} className="input-base">
           {ativos.map((a) => (
-            <option key={a.id} value={a.id} className="text-navy">
+            <option key={a.id} value={a.id}>
               {a.ticker ?? a.nome} · {Number(a.quantidade).toLocaleString("pt-BR")}
             </option>
           ))}
@@ -270,13 +267,11 @@ function FormRetirar({ ativos, onSuccess }: { ativos: AtivoComValor[]; onSuccess
         <div>
           <label className="mb-1.5 block text-sm font-medium text-foreground/80">Quantidade</label>
           <input
-            type="number"
-            step="0.000001"
-            min="0.000001"
-            max={ativoSelecionado ? Number(ativoSelecionado.quantidade) : undefined}
+            type="text"
+            inputMode="decimal"
             required
             value={quantidade}
-            onChange={(e) => setQuantidade(e.target.value)}
+            onChange={(e) => setQuantidade(apenasNumerico(e.target.value))}
             className="input-base"
           />
           {ativoSelecionado && (
@@ -290,12 +285,11 @@ function FormRetirar({ ativos, onSuccess }: { ativos: AtivoComValor[]; onSuccess
             Preço unit. (R$)
           </label>
           <input
-            type="number"
-            step="0.01"
-            min="0.01"
+            type="text"
+            inputMode="decimal"
             required
             value={precoUnitario}
-            onChange={(e) => setPrecoUnitario(e.target.value)}
+            onChange={(e) => setPrecoUnitario(apenasNumerico(e.target.value))}
             className="input-base"
           />
         </div>

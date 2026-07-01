@@ -75,6 +75,14 @@ h1, h2, h3, h4 {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--dourado) 18%, transparent);
 }
 
+/* Navegadores (Chrome/Firefox) respeitam cor de fundo/texto em <option>,
+   então o menu nativo do <select> acompanha o tema em vez de ficar
+   sempre branco/cinza mesmo no modo escuro. */
+select.input-base option {
+  background-color: var(--superficie);
+  color: var(--foreground);
+}
+
 .btn-dourado {
   background: linear-gradient(135deg, var(--dourado-claro), var(--dourado));
   color: var(--navy);

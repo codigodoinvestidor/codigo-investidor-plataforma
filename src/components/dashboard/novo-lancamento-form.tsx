@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, TrendingDown, TrendingUp } from "lucide-react";
 import { CATEGORIAS_RENDA, CATEGORIAS_DESPESA, NOMES_MESES } from "@/lib/categorias";
+import { normalizarDecimal, apenasNumerico } from "@/lib/numero";
 
 const HOJE = new Date();
 const MES_ATUAL = HOJE.getMonth() + 1;
@@ -38,7 +39,7 @@ export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {
         tipo,
         categoria,
         descricao,
-        valor,
+        valor: normalizarDecimal(valor),
         mesInicio,
         anoInicio,
         mesFim: semTermino ? null : mesFim,
@@ -99,7 +100,7 @@ export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {
           className="input-base"
         >
           {categorias.map((c) => (
-            <option key={c} value={c} className="text-navy">
+            <option key={c} value={c}>
               {c}
             </option>
           ))}
@@ -121,12 +122,11 @@ export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {
       <div>
         <label className="mb-1.5 block text-sm font-medium text-foreground/80">Valor (R$)</label>
         <input
-          type="number"
-          step="0.01"
-          min="0.01"
+          type="text"
+          inputMode="decimal"
           required
           value={valor}
-          onChange={(e) => setValor(e.target.value)}
+          onChange={(e) => setValor(apenasNumerico(e.target.value))}
           className="input-base"
           placeholder="0,00"
         />
@@ -141,7 +141,7 @@ export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {
             className="input-base"
           >
             {NOMES_MESES.map((m, i) => (
-              <option key={m} value={i + 1} className="text-navy">
+              <option key={m} value={i + 1}>
                 {m}
               </option>
             ))}
@@ -155,7 +155,7 @@ export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {
             className="input-base"
           >
             {ANOS.map((a) => (
-              <option key={a} value={a} className="text-navy">
+              <option key={a} value={a}>
                 {a}
               </option>
             ))}
@@ -183,7 +183,7 @@ export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {
               className="input-base"
             >
               {NOMES_MESES.map((m, i) => (
-                <option key={m} value={i + 1} className="text-navy">
+                <option key={m} value={i + 1}>
                   {m}
                 </option>
               ))}
@@ -197,7 +197,7 @@ export function NovoLancamentoForm({ onSuccess }: { onSuccess?: () => void } = {
               className="input-base"
             >
               {ANOS.map((a) => (
-                <option key={a} value={a} className="text-navy">
+                <option key={a} value={a}>
                   {a}
                 </option>
               ))}

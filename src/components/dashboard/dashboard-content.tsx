@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Wallet, TrendingDown, TrendingUp } from "lucide-react";
 import { useCachedFetch } from "@/lib/use-cached-fetch";
 import { CartaoResumo } from "@/components/dashboard/cartao-resumo";
@@ -10,6 +11,9 @@ import { ResumoAnual } from "@/components/dashboard/resumo-anual";
 import { BotaoExportarCsv } from "@/components/botao-exportar-csv";
 import { gerarResumoAnual } from "@/lib/calculo-mensal";
 import { NOMES_MESES } from "@/lib/categorias";
+
+const ANO_ATUAL_PADRAO = new Date().getFullYear();
+const ANOS_FILTRO = Array.from({ length: 6 }, (_, i) => ANO_ATUAL_PADRAO - 1 + i);
 
 type Lancamento = {
   id: string;
@@ -44,6 +48,13 @@ export function DashboardContent({ initialData }: { initialData?: Lancamento[] }
     initialData
   );
 
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtual = hoje.getMonth() + 1;
+
+  const [mesFiltro, setMesFiltro] = useState(mesAtual);
+  const [anoFiltro, setAnoFiltro] = useState(anoAtual);
+
   if (loading || !lancamentos) return <Skeleton />;
 
   const lancamentosCalculo = lancamentos.map((l) => ({
@@ -56,14 +67,15 @@ export function DashboardContent({ initialData }: { initialData?: Lancamento[] }
     anoFim: l.anoFim,
   }));
 
-  const hoje = new Date();
-  const anoAtual = hoje.getFullYear();
-  const mesAtual = hoje.getMonth() + 1;
-
   const { meses } = gerarResumoAnual(lancamentosCalculo, anoAtual);
   const resumoMesAtual = meses[mesAtual - 1];
 
-  const despesasPorCategoriaMesAtual = Object.entries(resumoMesAtual.porCategoria)
+  const { meses: mesesFiltro } = anoFiltro === anoAtual
+    ? { meses }
+    : gerarResumoAnual(lancamentosCalculo, anoFiltro);
+  const resumoMesFiltro = mesesFiltro[mesFiltro - 1];
+
+  const despesasPorCategoriaFiltro = Object.entries(resumoMesFiltro.porCategoria)
     .filter(([, total]) => total > 0)
     .map(([categoria, total]) => ({ categoria, total }));
 
@@ -89,9 +101,33 @@ export function DashboardContent({ initialData }: { initialData?: Lancamento[] }
 
         <div className="space-y-6 lg:col-span-2">
           <div className="card p-6">
-            <h2 className="mb-1 font-display text-lg text-foreground">Despesas por categoria</h2>
-            <p className="mb-4 text-sm text-foreground/55">No mês atual.</p>
-            <GraficoCategorias dados={despesasPorCategoriaMesAtual} />
+            <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-display text-lg text-foreground">Despesas por categoria</h2>
+              <div className="flex gap-2">
+                <select
+                  value={mesFiltro}
+                  onChange={(e) => setMesFiltro(Number(e.target.value))}
+                  className="input-base w-auto py-1 text-sm"
+                >
+                  {NOMES_MESES.map((m, i) => (
+                    <option key={m} value={i + 1}>{m}</option>
+                  ))}
+                </select>
+                <select
+                  value={anoFiltro}
+                  onChange={(e) => setAnoFiltro(Number(e.target.value))}
+                  className="input-base w-auto py-1 text-sm"
+                >
+                  {ANOS_FILTRO.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <p className="mb-4 text-sm text-foreground/55">
+              {mesFiltro === mesAtual && anoFiltro === anoAtual ? "No mês atual." : `${NOMES_MESES[mesFiltro - 1]} de ${anoFiltro}.`}
+            </p>
+            <GraficoCategorias dados={despesasPorCategoriaFiltro} />
           </div>
 
           <div className="card p-6">

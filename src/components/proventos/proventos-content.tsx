@@ -118,15 +118,6 @@ export function ProventosContent({
           </div>
 
           <div className="card p-6">
-            <div className="mb-1 flex items-center justify-between">
-              <h2 className="font-display text-lg text-foreground">Meus proventos</h2>
-              <BotaoExportarCsv href="/api/proventos/exportar" />
-            </div>
-            <p className="mb-4 text-sm text-foreground/55">Histórico de pagamentos.</p>
-            <ListaProventos proventos={proventos} onRefresh={carregar} />
-          </div>
-
-          <div className="card p-6">
             <h2 className="mb-1 font-display text-lg text-foreground">Proventos do mercado</h2>
             <p className="mb-4 text-sm text-foreground/55">
               Pagamentos dos ativos da sua carteira que talvez você ainda não tenha registrado.
@@ -143,6 +134,17 @@ export function ProventosContent({
             <p className="text-sm text-foreground/55">Proventos recebidos por mês, ano a ano.</p>
           </div>
           <HistoricoMensalProventos proventos={proventosCalculo} anos={anosExibidos} />
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <div className="card p-6">
+          <div className="mb-1 flex items-center justify-between">
+            <h2 className="font-display text-lg text-foreground">Meus proventos</h2>
+            <BotaoExportarCsv href="/api/proventos/exportar" />
+          </div>
+          <p className="mb-4 text-sm text-foreground/55">Histórico de pagamentos.</p>
+          <ListaProventos proventos={proventos} onRefresh={carregar} />
         </div>
       </section>
     </>

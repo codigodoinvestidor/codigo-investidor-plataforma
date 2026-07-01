@@ -29,7 +29,10 @@ export function GraficoEvolucao({ dados }: { dados: Ponto[] }) {
           tickFormatter={(v: number) => `R$${Math.round(v / 1000)}K`}
           width={56}
         />
-        <Tooltip content={<TooltipEscuro formatter={(v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />} />
+        <Tooltip
+          cursor={{ fill: "var(--foreground)", opacity: 0.06 }}
+          content={<TooltipEscuro formatter={(v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />}
+        />
         <Bar
           dataKey="valorAplicado"
           name="Valor aplicado"

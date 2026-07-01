@@ -26,7 +26,10 @@ export function GraficoEvolucaoProventos({ dados }: { dados: Ponto[] }) {
           tickFormatter={(v: number) => `R$${v}`}
           width={56}
         />
-        <Tooltip content={<TooltipEscuro formatter={(v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />} />
+        <Tooltip
+          cursor={{ fill: "var(--foreground)", opacity: 0.06 }}
+          content={<TooltipEscuro formatter={(v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />}
+        />
         <Bar dataKey="total" name="Proventos" fill="#d4af37" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

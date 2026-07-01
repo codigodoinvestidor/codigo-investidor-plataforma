@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Banknote } from "lucide-react";
+import { apenasNumerico } from "@/lib/numero";
 
 export type AtivoParaVenda = {
   id: string;
@@ -82,13 +83,11 @@ export function VenderAtivoModal({
                 Quantidade
               </label>
               <input
-                type="number"
-                step="0.000001"
-                min="0.000001"
-                max={ativo.quantidade}
+                type="text"
+                inputMode="decimal"
                 required
                 value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
+                onChange={(e) => setQuantidade(apenasNumerico(e.target.value))}
                 className="input-base"
               />
               <p className="mt-1 text-xs text-foreground/40">Possui {ativo.quantidade.toLocaleString("pt-BR")}</p>
@@ -98,12 +97,11 @@ export function VenderAtivoModal({
                 Preço unit. (R$)
               </label>
               <input
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputMode="decimal"
                 required
                 value={precoUnitario}
-                onChange={(e) => setPrecoUnitario(e.target.value)}
+                onChange={(e) => setPrecoUnitario(apenasNumerico(e.target.value))}
                 className="input-base"
               />
             </div>

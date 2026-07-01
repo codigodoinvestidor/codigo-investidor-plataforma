@@ -117,18 +117,19 @@ enum TipoMeta {
   DIVIDENDOS
 }
 
-// Meta ativa por tipo — editar é um upsert, sem histórico de metas antigas.
-// dataAlvo só faz sentido pra meta de Patrimônio.
+// Várias metas por tipo são permitidas (ex: "Aposentadoria" e "Casa própria",
+// ambas do tipo PATRIMONIO). dataAlvo só faz sentido pra meta de Patrimônio.
 model Meta {
   id           String    @id @default(uuid())
   userId       String
   tipo         TipoMeta
+  nome         String?
   valorAlvo    Decimal   @db.Decimal(14, 2)
   dataAlvo     DateTime?
   criadoEm     DateTime  @default(now())
   atualizadoEm DateTime  @updatedAt
 
-  @@unique([userId, tipo])
+  @@index([userId, tipo])
   @@map("metas")
 }
 

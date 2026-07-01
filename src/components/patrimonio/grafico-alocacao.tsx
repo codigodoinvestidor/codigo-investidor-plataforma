@@ -49,14 +49,12 @@ export function GraficoAlocacao({ dados }: { dados: Item[] }) {
 
       <ul className="w-full space-y-2">
         {comPct.map((item, index) => (
-          <li key={item.categoria} className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2 text-foreground/75">
-              <span
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: CORES[index % CORES.length] }}
-              />
-              {item.categoria}
-            </span>
+          <li key={item.categoria} className="flex items-center gap-2 text-sm">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-full"
+              style={{ backgroundColor: CORES[index % CORES.length] }}
+            />
+            <span className="text-foreground/75">{item.categoria}</span>
             <span className="font-medium text-foreground">{formatarPct(item.pct)}</span>
           </li>
         ))}

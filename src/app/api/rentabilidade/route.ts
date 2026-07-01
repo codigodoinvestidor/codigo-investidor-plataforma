@@ -8,9 +8,10 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
 
-  const ativos = await prisma.ativo.findMany({
-    where: { userId: user.id, ticker: { not: null } },
-  });
+  const [ativos, proventos] = await Promise.all([
+    prisma.ativo.findMany({ where: { userId: user.id, ticker: { not: null } } }),
+    prisma.provento.findMany({ where: { userId: user.id } }),
+  ]);
 
   if (ativos.length === 0) return NextResponse.json({ vazio: true });
 
@@ -19,6 +20,12 @@ export async function GET() {
     quantidade: Number(a.quantidade),
   }));
 
-  const todos = await calcularTodosPeriodos(ativosParaCalculo);
+  const proventosParaCalculo = proventos.map((p) => ({
+    ticker: p.ticker,
+    valorTotal: Number(p.valorTotal),
+    dataPagamento: p.dataPagamento.toISOString().slice(0, 10),
+  }));
+
+  const todos = await calcularTodosPeriodos(ativosParaCalculo, proventosParaCalculo);
   return NextResponse.json(todos);
 }

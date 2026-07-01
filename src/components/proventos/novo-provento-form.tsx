@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { TIPOS_PAGAMENTO_PROVENTO } from "@/lib/validacao-provento";
+import { normalizarDecimal, apenasNumerico } from "@/lib/numero";
 
 const HOJE = new Date().toISOString().slice(0, 10);
 
@@ -39,7 +40,7 @@ export function NovoProventoForm({ tickers, onSuccess }: { tickers: string[]; on
       body: JSON.stringify({
         ticker,
         tipoPagamento,
-        valorTotal,
+        valorTotal: normalizarDecimal(valorTotal),
         dataCom: dataCom || null,
         dataPagamento,
       }),
@@ -72,7 +73,7 @@ export function NovoProventoForm({ tickers, onSuccess }: { tickers: string[]; on
           className="input-base"
         >
           {tickers.map((t) => (
-            <option key={t} value={t} className="text-navy">
+            <option key={t} value={t}>
               {t}
             </option>
           ))}
@@ -89,7 +90,7 @@ export function NovoProventoForm({ tickers, onSuccess }: { tickers: string[]; on
           className="input-base"
         >
           {TIPOS_PAGAMENTO_PROVENTO.map((t) => (
-            <option key={t} value={t} className="text-navy">
+            <option key={t} value={t}>
               {t}
             </option>
           ))}
@@ -99,12 +100,11 @@ export function NovoProventoForm({ tickers, onSuccess }: { tickers: string[]; on
       <div>
         <label className="mb-1.5 block text-sm font-medium text-foreground/80">Valor total (R$)</label>
         <input
-          type="number"
-          step="0.01"
-          min="0.01"
+          type="text"
+          inputMode="decimal"
           required
           value={valorTotal}
-          onChange={(e) => setValorTotal(e.target.value)}
+          onChange={(e) => setValorTotal(apenasNumerico(e.target.value))}
           className="input-base"
           placeholder="0,00"
         />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Save } from "lucide-react";
 import { CATEGORIAS_RENDA, CATEGORIAS_DESPESA, NOMES_MESES } from "@/lib/categorias";
+import { normalizarDecimal, apenasNumerico } from "@/lib/numero";
 
 const ANO_ATUAL = new Date().getFullYear();
 const ANOS = Array.from({ length: 6 }, (_, i) => ANO_ATUAL - 1 + i);
@@ -56,7 +57,7 @@ export function EditarLancamentoModal({
         tipo,
         categoria,
         descricao,
-        valor,
+        valor: normalizarDecimal(valor),
         mesInicio,
         anoInicio,
         mesFim: semTermino ? null : mesFim,
@@ -121,7 +122,7 @@ export function EditarLancamentoModal({
               className="input-base"
             >
               {categorias.map((c) => (
-                <option key={c} value={c} className="text-navy">
+                <option key={c} value={c}>
                   {c}
                 </option>
               ))}
@@ -142,12 +143,11 @@ export function EditarLancamentoModal({
           <div>
             <label className="mb-1.5 block text-sm font-medium text-foreground/80">Valor (R$)</label>
             <input
-              type="number"
-              step="0.01"
-              min="0.01"
+              type="text"
+              inputMode="decimal"
               required
               value={valor}
-              onChange={(e) => setValor(e.target.value)}
+              onChange={(e) => setValor(apenasNumerico(e.target.value))}
               className="input-base"
             />
           </div>
@@ -161,7 +161,7 @@ export function EditarLancamentoModal({
                 className="input-base"
               >
                 {NOMES_MESES.map((m, i) => (
-                  <option key={m} value={i + 1} className="text-navy">
+                  <option key={m} value={i + 1}>
                     {m}
                   </option>
                 ))}
@@ -175,7 +175,7 @@ export function EditarLancamentoModal({
                 className="input-base"
               >
                 {ANOS.map((a) => (
-                  <option key={a} value={a} className="text-navy">
+                  <option key={a} value={a}>
                     {a}
                   </option>
                 ))}
@@ -203,7 +203,7 @@ export function EditarLancamentoModal({
                   className="input-base"
                 >
                   {NOMES_MESES.map((m, i) => (
-                    <option key={m} value={i + 1} className="text-navy">
+                    <option key={m} value={i + 1}>
                       {m}
                     </option>
                   ))}
@@ -217,7 +217,7 @@ export function EditarLancamentoModal({
                   className="input-base"
                 >
                   {ANOS.map((a) => (
-                    <option key={a} value={a} className="text-navy">
+                    <option key={a} value={a}>
                       {a}
                     </option>
                   ))}

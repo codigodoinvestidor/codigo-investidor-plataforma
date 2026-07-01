@@ -63,11 +63,12 @@ export function ProventosMercado({ onRegistrado }: { onRegistrado?: () => void }
   }
 
   return (
-    <div className="space-y-2">
+    <div>
       <p className="mb-2 text-xs text-foreground/45">
         Histórico de pagamentos de mercado (fonte: Yahoo Finance) que não batem com nenhum provento
         seu no mesmo mês — confira o valor estimado (cotas atuais × valor/cota) antes de registrar.
       </p>
+      <div className="scrollbar-fina max-h-[420px] space-y-2 overflow-y-auto">
       {naoRegistrados.map((e) => {
         const chave = `${e.ticker}:${e.data}`;
         return (
@@ -94,6 +95,7 @@ export function ProventosMercado({ onRegistrado }: { onRegistrado?: () => void }
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

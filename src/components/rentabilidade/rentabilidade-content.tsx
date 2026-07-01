@@ -63,7 +63,9 @@ export function RentabilidadeContent({ initialData }: { initialData?: RespostaAp
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl text-foreground">Rentabilidade</h1>
-          <p className="text-sm text-foreground/50">Sua carteira comparada com IBOV, CDI e IPCA.</p>
+          <p className="text-sm text-foreground/50">
+            Sua carteira (ganho de capital + proventos recebidos) comparada com IBOV, CDI e IPCA.
+          </p>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {PERIODOS.map((op) => (

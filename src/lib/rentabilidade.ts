@@ -3,6 +3,7 @@ import { obterHistoricoComCache } from "@/lib/historico-precos";
 import { buscarCdi, buscarIpca } from "@/lib/bacen";
 
 type AtivoParaRentabilidade = { ticker: string; quantidade: number };
+type ProventoParaRentabilidade = { ticker: string; valorTotal: number; dataPagamento: string };
 type PontoSerie = { data: string; preco: number };
 export type PontoRentabilidade = { data: string; carteira: number; ibov: number | null; cdi: number; ipca: number };
 export type TodosPeriodos = Record<number, PontoRentabilidade[]>;
@@ -47,9 +48,12 @@ function calcularPeriodo(
   historicoIbov: PontoSerie[],
   cdiDiario: { data: string; valorPct: number }[],
   ipcaMensal: { data: string; valorPct: number }[],
+  proventos: ProventoParaRentabilidade[],
   periodoMeses: number
 ): PontoRentabilidade[] {
   const snapshots = gerarSnapshots(periodoMeses);
+  const tickersCarteira = new Set(ativos.map((a) => a.ticker));
+  const proventosCarteira = proventos.filter((p) => tickersCarteira.has(p.ticker));
 
   const valoresCarteira = snapshots.map((data) => {
     const dataLimite = dataIso(data);
@@ -72,6 +76,12 @@ function calcularPeriodo(
     const v = valoresCarteira[i];
     const ibovV = valoresIbov[i];
 
+    // Retorno total = variação de preço + proventos recebidos no período,
+    // não só ganho de capital.
+    const proventosAcumulados = proventosCarteira
+      .filter((p) => p.dataPagamento >= dataInicioStr && p.dataPagamento <= limiteStr)
+      .reduce((soma, p) => soma + p.valorTotal, 0);
+
     const cdiPontos = cdiDiario.filter((p) => p.data >= dataInicioStr && p.data <= limiteStr);
     const cdi = (cdiPontos.reduce((acc, p) => acc * (1 + p.valorPct / 100), 1) - 1) * 100;
 
@@ -80,7 +90,7 @@ function calcularPeriodo(
 
     return {
       data: data.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
-      carteira: baseCarteira > 0 ? (v / baseCarteira - 1) * 100 : 0,
+      carteira: baseCarteira > 0 ? ((v + proventosAcumulados) / baseCarteira - 1) * 100 : 0,
       ibov: baseIbov != null && ibovV != null ? (ibovV / baseIbov - 1) * 100 : null,
       cdi,
       ipca,
@@ -88,7 +98,10 @@ function calcularPeriodo(
   });
 }
 
-async function _calcularTodos(ativos: AtivoParaRentabilidade[]): Promise<TodosPeriodos> {
+async function _calcularTodos(
+  ativos: AtivoParaRentabilidade[],
+  proventos: ProventoParaRentabilidade[]
+): Promise<TodosPeriodos> {
   const tickersUnicos = Array.from(new Set(ativos.map((a) => a.ticker)));
 
   // Uma única chamada para todos os dados externos
@@ -105,17 +118,21 @@ async function _calcularTodos(ativos: AtivoParaRentabilidade[]): Promise<TodosPe
   // Calcula todos os períodos com os dados já em memória (sem I/O adicional)
   const resultado: TodosPeriodos = {};
   for (const meses of PERIODOS) {
-    resultado[meses] = calcularPeriodo(ativos, historicos, historicoIbov, cdiDiario, ipcaMensal, meses);
+    resultado[meses] = calcularPeriodo(ativos, historicos, historicoIbov, cdiDiario, ipcaMensal, proventos, meses);
   }
   return resultado;
 }
 
-// Cache 1h por conjunto de ativos — todos os períodos num único cache entry
-export function calcularTodosPeriodos(ativos: AtivoParaRentabilidade[]) {
-  const chave = ativos.map((a) => `${a.ticker}:${a.quantidade}`).sort().join(",");
+// Cache 1h por conjunto de ativos + proventos — todos os períodos num único cache entry
+export function calcularTodosPeriodos(
+  ativos: AtivoParaRentabilidade[],
+  proventos: ProventoParaRentabilidade[] = []
+) {
+  const chaveAtivos = ativos.map((a) => `${a.ticker}:${a.quantidade}`).sort().join(",");
+  const chaveProventos = proventos.map((p) => `${p.ticker}:${p.valorTotal}:${p.dataPagamento}`).sort().join(",");
   return unstable_cache(
-    () => _calcularTodos(ativos),
-    [`rentabilidade-todos-v2-${chave}`],
+    () => _calcularTodos(ativos, proventos),
+    [`rentabilidade-todos-v3-${chaveAtivos}-${chaveProventos}`],
     { revalidate: 3600, tags: ["rentabilidade"] }
   )();
 }

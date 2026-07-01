@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Save } from "lucide-react";
 import { TIPOS_PAGAMENTO_PROVENTO } from "@/lib/validacao-provento";
+import { normalizarDecimal, apenasNumerico } from "@/lib/numero";
 
 export type ProventoEditavel = {
   id: string;
@@ -43,7 +44,7 @@ export function EditarProventoModal({
       body: JSON.stringify({
         ticker,
         tipoPagamento,
-        valorTotal,
+        valorTotal: normalizarDecimal(valorTotal),
         dataCom: dataCom || null,
         dataPagamento,
       }),
@@ -99,7 +100,7 @@ export function EditarProventoModal({
               className="input-base"
             >
               {TIPOS_PAGAMENTO_PROVENTO.map((t) => (
-                <option key={t} value={t} className="text-navy">
+                <option key={t} value={t}>
                   {t}
                 </option>
               ))}
@@ -111,12 +112,11 @@ export function EditarProventoModal({
               Valor total (R$)
             </label>
             <input
-              type="number"
-              step="0.01"
-              min="0.01"
+              type="text"
+              inputMode="decimal"
               required
               value={valorTotal}
-              onChange={(e) => setValorTotal(e.target.value)}
+              onChange={(e) => setValorTotal(apenasNumerico(e.target.value))}
               className="input-base"
             />
           </div>
