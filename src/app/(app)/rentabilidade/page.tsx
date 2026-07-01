@@ -22,7 +22,7 @@ export default async function RentabilidadePage() {
   const proventosParaCalculo = proventos.map((p) => ({
     ticker: p.ticker,
     valorTotal: Number(p.valorTotal),
-    dataPagamento: p.dataPagamento.toISOString().slice(0, 10),
+    dataPagamento: new Date(p.dataPagamento).toISOString().slice(0, 10),
   }));
 
   const todos = await calcularTodosPeriodos(ativosParaCalculo, proventosParaCalculo);
