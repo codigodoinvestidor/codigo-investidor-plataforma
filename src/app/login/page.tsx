@@ -228,19 +228,7 @@ export default function LoginPage() {
       </div>
 
       {/* Formulário */}
-      <div className="relative flex w-full flex-col items-center justify-center overflow-hidden px-6 py-16 lg:w-[54%]">
-        <div className="pointer-events-none absolute inset-0 -z-10 lg:hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_15%,color-mix(in_srgb,var(--dourado)_16%,transparent),transparent_42%),radial-gradient(circle_at_85%_80%,color-mix(in_srgb,var(--dourado)_10%,transparent),transparent_40%),radial-gradient(circle_at_50%_100%,color-mix(in_srgb,var(--navy)_30%,transparent),transparent_60%)]" />
-          <div
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage:
-                "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
-            }}
-          />
-        </div>
-
+      <div className="relative flex w-full flex-col items-center justify-center px-6 py-16 lg:w-[54%]">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
             <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-dourado-claro to-dourado text-navy shadow-lg shadow-dourado/20 lg:hidden">
@@ -274,18 +262,6 @@ export default function LoginPage() {
               </>
             )}
           </div>
-
-          <ul className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between lg:hidden">
-            {BENEFICIOS.map(({ icone: Icone, texto }) => (
-              <li
-                key={texto}
-                className="flex items-center gap-2 text-xs text-foreground/50 sm:flex-col sm:text-center"
-              >
-                <Icone size={14} className="shrink-0 text-dourado" />
-                <span>{texto}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </main>
