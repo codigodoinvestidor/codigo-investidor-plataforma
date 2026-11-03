@@ -76,6 +76,7 @@ export type UsuarioAdmin = {
   criadoEm: Date;
   ultimoAcesso: Date | null;
   role: string | null;
+  aprovado: boolean;
 };
 
 export const getUsuariosAdmin = () =>
@@ -88,12 +89,35 @@ export const getUsuariosAdmin = () =>
           raw_user_meta_data ->> 'nome' as "nome",
           created_at as "criadoEm",
           last_sign_in_at as "ultimoAcesso",
-          raw_app_meta_data ->> 'role' as "role"
+          raw_app_meta_data ->> 'role' as "role",
+          coalesce((raw_app_meta_data ->> 'aprovado')::boolean, true) as "aprovado"
         from auth.users
         order by created_at desc
       `,
     ["admin-usuarios"],
     { revalidate: 30, tags: ["admin-usuarios"] }
+  )();
+
+// Cadastros com aprovado = false explicitamente aguardam liberação do admin;
+// quem nunca recebeu o campo (contas antigas) é tratado como já aprovado.
+export const getUsuariosPendentes = () =>
+  unstable_cache(
+    () =>
+      prisma.$queryRaw<UsuarioAdmin[]>`
+        select
+          id,
+          email,
+          raw_user_meta_data ->> 'nome' as "nome",
+          created_at as "criadoEm",
+          last_sign_in_at as "ultimoAcesso",
+          raw_app_meta_data ->> 'role' as "role",
+          false as "aprovado"
+        from auth.users
+        where (raw_app_meta_data ->> 'aprovado')::boolean = false
+        order by created_at asc
+      `,
+    ["admin-usuarios-pendentes"],
+    { revalidate: 15, tags: ["admin-usuarios", "admin-usuarios-pendentes"] }
   )();
 
 // Estatísticas agregadas para a página /admin. Sem filtro de userId de propósito:

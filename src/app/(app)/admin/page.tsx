@@ -6,6 +6,7 @@ import {
   Target,
   Coins,
   Users,
+  UserCheck,
   LogIn,
   History,
   GitCommitHorizontal,
@@ -15,6 +16,7 @@ import {
   getEstatisticasAdmin,
   getAcessosRecentes,
   getUsuariosAdmin,
+  getUsuariosPendentes,
   getModificacoesRecentes,
   getAcessosPorDia,
   getCadastrosPorDia,
@@ -22,6 +24,7 @@ import {
 import { getCommitsRecentes } from "@/lib/github";
 import { GraficoSerie } from "@/components/admin/grafico-serie";
 import { GraficoDistribuicao } from "@/components/admin/grafico-distribuicao";
+import { AprovarUsuarioButton } from "@/components/admin/aprovar-usuario-button";
 
 const formatarData = (data: Date | string | null) =>
   data
@@ -37,10 +40,11 @@ export default async function AdminPage() {
     redirect("/dashboard");
   }
 
-  const [stats, usuarios, acessos, modificacoes, commits, acessosPorDia, cadastrosPorDia] =
+  const [stats, usuarios, pendentes, acessos, modificacoes, commits, acessosPorDia, cadastrosPorDia] =
     await Promise.all([
       getEstatisticasAdmin(),
       getUsuariosAdmin(),
+      getUsuariosPendentes(),
       getAcessosRecentes(),
       getModificacoesRecentes(),
       getCommitsRecentes(),
@@ -79,6 +83,36 @@ export default async function AdminPage() {
           </p>
         </div>
       </div>
+
+      {/* Cadastros pendentes */}
+      {pendentes.length > 0 && (
+        <section className="card p-6 ring-1 ring-dourado/30">
+          <div className="mb-4 flex items-center gap-2">
+            <UserCheck size={18} className="text-dourado" />
+            <h2 className="font-display text-lg text-foreground">Cadastros pendentes</h2>
+            <span className="ml-1 rounded-full bg-dourado/10 px-2 py-0.5 text-xs font-medium text-dourado">
+              {pendentes.length}
+            </span>
+          </div>
+
+          <ul className="flex flex-col gap-3">
+            {pendentes.map((p) => (
+              <li
+                key={p.id}
+                className="flex flex-col gap-3 border-b border-borda/60 pb-3 last:border-0 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm text-foreground">{p.nome ?? p.email}</p>
+                  <p className="text-xs text-foreground/50">
+                    {p.email} · cadastrado em {formatarData(p.criadoEm)}
+                  </p>
+                </div>
+                <AprovarUsuarioButton userId={p.id} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Dashboard */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -148,6 +182,10 @@ export default async function AdminPage() {
                       {u.role === "admin" ? (
                         <span className="rounded-full bg-dourado/10 px-2.5 py-0.5 text-xs font-medium text-dourado">
                           admin
+                        </span>
+                      ) : !u.aprovado ? (
+                        <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-500">
+                          pendente
                         </span>
                       ) : (
                         <span className="text-xs text-foreground/40">usuário</span>

@@ -37,8 +37,24 @@ export async function updateSession(request: NextRequest) {
   }
 
   const isAdmin = session?.user?.app_metadata?.role === "admin";
+  const pendenteAprovacao = !!session && !isAdmin && session.user.app_metadata?.aprovado === false;
 
   if (session && isAuthRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = pendenteAprovacao ? "/aguardando-aprovacao" : isAdmin ? "/admin" : "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  const isRotaAguardando = request.nextUrl.pathname.startsWith("/aguardando-aprovacao");
+
+  // Cadastro novo aguardando aprovação do admin: sem acesso ao restante do app.
+  if (pendenteAprovacao && !isRotaAguardando) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/aguardando-aprovacao";
+    return NextResponse.redirect(url);
+  }
+
+  if (session && !pendenteAprovacao && isRotaAguardando) {
     const url = request.nextUrl.clone();
     url.pathname = isAdmin ? "/admin" : "/dashboard";
     return NextResponse.redirect(url);
