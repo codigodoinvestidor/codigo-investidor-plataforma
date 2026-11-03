@@ -42,35 +42,37 @@ export function IlustracaoLogin() {
       <circle cx="220" cy="260" r="260" fill="url(#brilho)" />
       <circle cx="540" cy="580" r="220" fill="url(#brilho)" opacity="0.7" />
 
-      {/* candles abstratos subindo, deslocados à direita, terminando antes do copyright */}
-      <g opacity="0.9">
-        <rect x="150" y="540" width="26" height="120" rx="4" fill="url(#barraDourada)" />
-        <rect x="200" y="480" width="26" height="180" rx="4" fill="url(#barraDourada)" opacity="0.85" />
-        <rect x="250" y="410" width="26" height="250" rx="4" fill="url(#barraDourada)" opacity="0.7" />
-        <rect x="300" y="450" width="26" height="210" rx="4" fill="url(#barraDourada)" opacity="0.8" />
-        <rect x="350" y="360" width="26" height="300" rx="4" fill="url(#barraDourada)" />
-        <rect x="400" y="320" width="26" height="340" rx="4" fill="url(#barraDourada)" opacity="0.9" />
-        <rect x="450" y="280" width="26" height="380" rx="4" fill="url(#barraDourada)" />
-        <rect x="500" y="240" width="26" height="420" rx="4" fill="url(#barraDourada)" opacity="0.85" />
-        <rect x="550" y="200" width="26" height="460" rx="4" fill="url(#barraDourada)" />
-      </g>
+      {/* candles abstratos subindo, em escala reduzida, deslocados à direita */}
+      <g transform="translate(363 420) scale(0.72) translate(-363 -420)">
+        <g opacity="0.9">
+          <rect x="150" y="540" width="26" height="120" rx="4" fill="url(#barraDourada)" />
+          <rect x="200" y="480" width="26" height="180" rx="4" fill="url(#barraDourada)" opacity="0.85" />
+          <rect x="250" y="410" width="26" height="250" rx="4" fill="url(#barraDourada)" opacity="0.7" />
+          <rect x="300" y="450" width="26" height="210" rx="4" fill="url(#barraDourada)" opacity="0.8" />
+          <rect x="350" y="360" width="26" height="300" rx="4" fill="url(#barraDourada)" />
+          <rect x="400" y="320" width="26" height="340" rx="4" fill="url(#barraDourada)" opacity="0.9" />
+          <rect x="450" y="280" width="26" height="380" rx="4" fill="url(#barraDourada)" />
+          <rect x="500" y="240" width="26" height="420" rx="4" fill="url(#barraDourada)" opacity="0.85" />
+          <rect x="550" y="200" width="26" height="460" rx="4" fill="url(#barraDourada)" />
+        </g>
 
-      {/* linha de tendência */}
-      <path
-        d="M163 540 L213 480 L263 410 L313 450 L363 360 L413 320 L463 280 L513 240 L563 200"
-        fill="none"
-        stroke="url(#linhaGrafico)"
-        strokeWidth="3"
-      />
-      {[
-        [163, 540],
-        [263, 410],
-        [363, 360],
-        [463, 280],
-        [563, 200],
-      ].map(([cx, cy], i) => (
-        <circle key={i} cx={cx} cy={cy} r="5" fill="#f3d27a" />
-      ))}
+        {/* linha de tendência */}
+        <path
+          d="M163 540 L213 480 L263 410 L313 450 L363 360 L413 320 L463 280 L513 240 L563 200"
+          fill="none"
+          stroke="url(#linhaGrafico)"
+          strokeWidth="3"
+        />
+        {[
+          [163, 540],
+          [263, 410],
+          [363, 360],
+          [463, 280],
+          [563, 200],
+        ].map(([cx, cy], i) => (
+          <circle key={i} cx={cx} cy={cy} r="5" fill="#f3d27a" />
+        ))}
+      </g>
 
       {/* partículas flutuantes */}
       <g fill="#f3d27a">
