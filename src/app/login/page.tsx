@@ -193,7 +193,7 @@ export default function LoginPage() {
       {/* Painel ilustrativo: visível a partir de telas médias, reforça a identidade da marca */}
       <div className="relative hidden w-[46%] overflow-hidden lg:block">
         <IlustracaoLogin />
-        <div className="relative z-10 flex h-full flex-col justify-between p-12 text-white">
+        <div className="relative z-10 flex h-full flex-col justify-between p-12 pb-6 text-white">
           <div className="flex items-center justify-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-dourado-claro to-dourado text-navy">
               <LayoutDashboard size={20} />
