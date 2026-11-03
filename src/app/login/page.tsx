@@ -242,7 +242,7 @@ export default function LoginPage() {
         </div>
 
         <div className="w-full max-w-sm">
-          <div className="mb-8 text-center lg:text-left">
+          <div className="mb-8 text-center">
             <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-dourado-claro to-dourado text-navy shadow-lg shadow-dourado/20 lg:hidden">
               <LayoutDashboard size={22} />
             </span>
