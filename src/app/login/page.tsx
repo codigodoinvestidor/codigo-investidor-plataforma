@@ -221,7 +221,7 @@ export default function LoginPage() {
             </ul>
           </div>
 
-          <p className="text-xs text-white/40">
+          <p className="text-center text-xs text-white/40">
             © {new Date().getFullYear()} Codigo do Investidor
           </p>
         </div>

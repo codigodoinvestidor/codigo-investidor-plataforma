@@ -39,44 +39,46 @@ export function IlustracaoLogin() {
       </g>
 
       {/* brilho decorativo */}
-      <circle cx="150" cy="200" r="260" fill="url(#brilho)" />
-      <circle cx="470" cy="620" r="220" fill="url(#brilho)" opacity="0.7" />
+      <circle cx="220" cy="160" r="260" fill="url(#brilho)" />
+      <circle cx="540" cy="540" r="220" fill="url(#brilho)" opacity="0.7" />
 
-      {/* candles abstratos subindo */}
+      {/* candles abstratos subindo, deslocados à direita e sem invadir a área inferior do texto */}
       <g opacity="0.9">
-        <rect x="90" y="560" width="26" height="120" rx="4" fill="url(#barraDourada)" />
-        <rect x="140" y="500" width="26" height="180" rx="4" fill="url(#barraDourada)" opacity="0.85" />
-        <rect x="190" y="430" width="26" height="250" rx="4" fill="url(#barraDourada)" opacity="0.7" />
-        <rect x="240" y="470" width="26" height="210" rx="4" fill="url(#barraDourada)" opacity="0.8" />
-        <rect x="290" y="380" width="26" height="300" rx="4" fill="url(#barraDourada)" />
-        <rect x="340" y="340" width="26" height="340" rx="4" fill="url(#barraDourada)" opacity="0.9" />
-        <rect x="390" y="300" width="26" height="380" rx="4" fill="url(#barraDourada)" />
+        <rect x="150" y="500" width="26" height="120" rx="4" fill="url(#barraDourada)" />
+        <rect x="200" y="440" width="26" height="180" rx="4" fill="url(#barraDourada)" opacity="0.85" />
+        <rect x="250" y="370" width="26" height="250" rx="4" fill="url(#barraDourada)" opacity="0.7" />
+        <rect x="300" y="410" width="26" height="210" rx="4" fill="url(#barraDourada)" opacity="0.8" />
+        <rect x="350" y="320" width="26" height="300" rx="4" fill="url(#barraDourada)" />
+        <rect x="400" y="280" width="26" height="340" rx="4" fill="url(#barraDourada)" opacity="0.9" />
+        <rect x="450" y="240" width="26" height="380" rx="4" fill="url(#barraDourada)" />
+        <rect x="500" y="200" width="26" height="420" rx="4" fill="url(#barraDourada)" opacity="0.85" />
+        <rect x="550" y="160" width="26" height="460" rx="4" fill="url(#barraDourada)" />
       </g>
 
       {/* linha de tendência */}
       <path
-        d="M90 600 L140 540 L190 500 L240 520 L290 430 L340 390 L390 330 L440 300"
+        d="M163 500 L213 440 L263 370 L313 410 L363 320 L413 280 L463 240 L513 200 L563 160"
         fill="none"
         stroke="url(#linhaGrafico)"
         strokeWidth="3"
       />
       {[
-        [90, 600],
-        [190, 500],
-        [290, 430],
-        [390, 330],
-        [440, 300],
+        [163, 500],
+        [263, 370],
+        [363, 320],
+        [463, 240],
+        [563, 160],
       ].map(([cx, cy], i) => (
         <circle key={i} cx={cx} cy={cy} r="5" fill="#f3d27a" />
       ))}
 
       {/* partículas flutuantes */}
       <g fill="#f3d27a">
-        <circle cx="500" cy="150" r="3" opacity="0.6" />
-        <circle cx="540" cy="220" r="2" opacity="0.4" />
-        <circle cx="80" cy="120" r="2.5" opacity="0.5" />
-        <circle cx="460" cy="700" r="2" opacity="0.4" />
-        <circle cx="130" cy="730" r="3" opacity="0.5" />
+        <circle cx="130" cy="110" r="3" opacity="0.6" />
+        <circle cx="580" cy="100" r="2" opacity="0.4" />
+        <circle cx="90" cy="250" r="2.5" opacity="0.5" />
+        <circle cx="560" cy="650" r="2" opacity="0.4" />
+        <circle cx="200" cy="700" r="3" opacity="0.5" />
       </g>
     </svg>
   );
