@@ -230,8 +230,12 @@ export const getAcessosPorDia = (dias = 14) =>
     () =>
       prisma.$queryRaw<PontoSerie[]>`
         select to_char(d.dia, 'DD/MM') as dia, count(a.id)::int as total
-        from generate_series(current_date - make_interval(days => ${dias - 1}), current_date, interval '1 day') as d(dia)
-        left join acessos_log a on a."criadoEm"::date = d.dia
+        from generate_series(
+          (current_date - make_interval(days => ${dias - 1}))::timestamp,
+          current_date::timestamp,
+          interval '1 day'
+        ) as d(dia)
+        left join acessos_log a on a."criadoEm"::date = d.dia::date
         group by d.dia
         order by d.dia
       `,
@@ -244,8 +248,12 @@ export const getCadastrosPorDia = (dias = 30) =>
     () =>
       prisma.$queryRaw<PontoSerie[]>`
         select to_char(d.dia, 'DD/MM') as dia, count(u.id)::int as total
-        from generate_series(current_date - make_interval(days => ${dias - 1}), current_date, interval '1 day') as d(dia)
-        left join auth.users u on u.created_at::date = d.dia
+        from generate_series(
+          (current_date - make_interval(days => ${dias - 1}))::timestamp,
+          current_date::timestamp,
+          interval '1 day'
+        ) as d(dia)
+        left join auth.users u on u.created_at::date = d.dia::date
         group by d.dia
         order by d.dia
       `,
