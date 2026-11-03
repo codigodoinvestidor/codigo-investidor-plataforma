@@ -194,7 +194,7 @@ export default function LoginPage() {
       <div className="relative hidden w-[46%] overflow-hidden lg:block">
         <IlustracaoLogin />
         <div className="relative z-10 flex h-full flex-col justify-between p-12 text-white">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-dourado-claro to-dourado text-navy">
               <LayoutDashboard size={20} />
             </span>
