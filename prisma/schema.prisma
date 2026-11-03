@@ -153,3 +153,17 @@ model HistoricoSerie {
 
   @@map("historico_series")
 }
+
+// Registro de cada login bem-sucedido, usado na página /admin para mostrar
+// estatísticas de acesso. Gravado pelo endpoint /api/acessos, chamado pelo
+// client logo após supabase.auth.signInWithPassword() ter sucesso.
+model AcessoLog {
+  id        String   @id @default(uuid())
+  userId    String
+  criadoEm  DateTime @default(now())
+  userAgent String?
+
+  @@index([userId])
+  @@index([criadoEm])
+  @@map("acessos_log")
+}

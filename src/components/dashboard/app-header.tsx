@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet2, Landmark, Coins, LineChart, ScrollText, Target } from "lucide-react";
+import { LayoutDashboard, Wallet2, Landmark, Coins, LineChart, ScrollText, Target, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SairButton } from "@/components/dashboard/sair-button";
 
@@ -15,8 +15,9 @@ const NAV = [
   { href: "/metas", rotulo: "Metas", icone: Target },
 ];
 
-export function AppHeader({ nome }: { nome?: string | null }) {
+export function AppHeader({ nome, isAdmin }: { nome?: string | null; isAdmin?: boolean }) {
   const pathname = usePathname();
+  const nav = isAdmin ? [...NAV, { href: "/admin", rotulo: "Admin", icone: ShieldCheck }] : NAV;
 
   return (
     <header className="sticky top-0 z-10 border-b border-borda bg-background/80 backdrop-blur-md">
@@ -36,7 +37,7 @@ export function AppHeader({ nome }: { nome?: string | null }) {
         </div>
 
         <nav className="hidden items-center gap-1 rounded-full border border-borda p-1 sm:flex">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -58,7 +59,7 @@ export function AppHeader({ nome }: { nome?: string | null }) {
       </div>
 
       <nav className="flex items-center gap-0.5 border-t border-borda px-1.5 py-1.5 sm:hidden">
-        {NAV.map((item) => (
+        {nav.map((item) => (
           <Link
             key={item.href}
             href={item.href}

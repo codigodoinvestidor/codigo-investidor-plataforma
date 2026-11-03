@@ -34,6 +34,8 @@ export default function LoginPage() {
       return;
     }
 
+    fetch("/api/acessos", { method: "POST" }).catch(() => {});
+
     router.push("/dashboard");
     router.refresh();
   }
