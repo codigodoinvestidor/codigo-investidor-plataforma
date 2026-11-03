@@ -1,4 +1,5 @@
 import { unstable_cache } from "next/cache";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const getLancamentos = (userId: string) =>
@@ -174,7 +175,7 @@ export const getModificacoesRecentes = (limite = 30) =>
       );
       const emailsPorId = userIds.length
         ? await prisma.$queryRaw<{ id: string; email: string }[]>`
-            select id::text as id, email from auth.users where id::text = any(${userIds})
+            select id::text as id, email from auth.users where id::text in (${Prisma.join(userIds)})
           `
         : [];
       const emailDe = (userId: string) => emailsPorId.find((u) => u.id === userId)?.email ?? null;
