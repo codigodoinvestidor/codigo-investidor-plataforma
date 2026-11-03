@@ -19,26 +19,24 @@ export function GraficoDistribuicao({ dados }: { dados: Item[] }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row">
-      <div className="shrink-0">
-        <PieChart width={180} height={180}>
-          <Pie
-            data={comDados}
-            dataKey="total"
-            nameKey="nome"
-            cx="50%"
-            cy="50%"
-            innerRadius={44}
-            outerRadius={78}
-            paddingAngle={2}
-          >
-            {comDados.map((_, index) => (
-              <Cell key={index} fill={CORES[index % CORES.length]} stroke="none" />
-            ))}
-          </Pie>
-          <Tooltip content={<TooltipEscuro formatter={(v) => String(v)} />} />
-        </PieChart>
-      </div>
+    <div className="flex flex-col items-center gap-4">
+      <PieChart width={180} height={180}>
+        <Pie
+          data={comDados}
+          dataKey="total"
+          nameKey="nome"
+          cx="50%"
+          cy="50%"
+          innerRadius={44}
+          outerRadius={78}
+          paddingAngle={2}
+        >
+          {comDados.map((_, index) => (
+            <Cell key={index} fill={CORES[index % CORES.length]} stroke="none" />
+          ))}
+        </Pie>
+        <Tooltip content={<TooltipEscuro formatter={(v) => String(v)} />} />
+      </PieChart>
 
       <ul className="w-full space-y-2">
         {comDados.map((item, index) => (
@@ -50,7 +48,7 @@ export function GraficoDistribuicao({ dados }: { dados: Item[] }) {
               />
               <span className="truncate">{item.nome}</span>
             </span>
-            <span className="text-right font-medium text-foreground">{item.total}</span>
+            <span className="shrink-0 text-right font-medium text-foreground">{item.total}</span>
           </li>
         ))}
       </ul>
