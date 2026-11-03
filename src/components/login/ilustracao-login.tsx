@@ -43,7 +43,7 @@ export function IlustracaoLogin() {
       <circle cx="540" cy="580" r="220" fill="url(#brilho)" opacity="0.7" />
 
       {/* candles abstratos subindo, em escala reduzida, deslocados à direita */}
-      <g transform="translate(363 420) scale(0.72) translate(-363 -420)">
+      <g transform="translate(398 455) scale(0.72) translate(-363 -420)">
         <g opacity="0.9">
           <rect x="150" y="540" width="26" height="120" rx="4" fill="url(#barraDourada)" />
           <rect x="200" y="480" width="26" height="180" rx="4" fill="url(#barraDourada)" opacity="0.85" />
