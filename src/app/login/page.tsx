@@ -230,7 +230,7 @@ export default function LoginPage() {
       {/* Formulário */}
       <div className="relative flex w-full flex-col items-center justify-center overflow-hidden px-6 py-16 lg:w-[54%]">
         <div className="pointer-events-none absolute inset-0 -z-10 hidden lg:block">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,color-mix(in_srgb,var(--dourado)_14%,transparent),transparent_45%),radial-gradient(circle_at_15%_85%,color-mix(in_srgb,var(--dourado)_8%,transparent),transparent_40%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_12%,color-mix(in_srgb,var(--dourado)_28%,transparent),transparent_48%),radial-gradient(circle_at_10%_88%,color-mix(in_srgb,var(--dourado)_18%,transparent),transparent_42%)]" />
         </div>
 
         <div className="w-full max-w-sm">
