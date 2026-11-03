@@ -14,6 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { IlustracaoLogin } from "@/components/login/ilustracao-login";
 
 const BENEFICIOS = [
   { icone: TrendingUp, texto: "Renda, despesas e patrimônio" },
@@ -188,65 +189,104 @@ export default function LoginPage() {
   const [recuperarSenha, setRecuperarSenha] = useState(false);
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-16">
-      {/* Fundo decorativo: gradiente dourado + grid sutil, no mesmo tom do app */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_15%,color-mix(in_srgb,var(--dourado)_16%,transparent),transparent_42%),radial-gradient(circle_at_85%_80%,color-mix(in_srgb,var(--dourado)_10%,transparent),transparent_40%),radial-gradient(circle_at_50%_100%,color-mix(in_srgb,var(--navy)_30%,transparent),transparent_60%)]" />
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
-        />
+    <main className="flex min-h-screen bg-background">
+      {/* Painel ilustrativo: visível a partir de telas médias, reforça a identidade da marca */}
+      <div className="relative hidden w-[46%] overflow-hidden lg:block">
+        <IlustracaoLogin />
+        <div className="relative z-10 flex h-full flex-col justify-between p-12 text-white">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-dourado-claro to-dourado text-navy">
+              <LayoutDashboard size={20} />
+            </span>
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado-claro">
+              Codigo do Investidor
+            </p>
+          </div>
+
+          <div>
+            <h1 className="font-display text-3xl leading-tight text-white">
+              Seu patrimônio,
+              <br />
+              organizado e sob controle.
+            </h1>
+            <ul className="mt-8 flex flex-col gap-4">
+              {BENEFICIOS.map(({ icone: Icone, texto }) => (
+                <li key={texto} className="flex items-center gap-3 text-sm text-white/70">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-dourado-claro">
+                    <Icone size={15} />
+                  </span>
+                  {texto}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="text-xs text-white/40">
+            © {new Date().getFullYear()} Codigo do Investidor
+          </p>
+        </div>
       </div>
 
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-dourado-claro to-dourado text-navy shadow-lg shadow-dourado/20">
-            <LayoutDashboard size={22} />
-          </span>
-          <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado">
-            Codigo do Investidor
-          </p>
-          <h2 className="mt-3 font-display text-2xl text-foreground">
-            {recuperarSenha ? "Recuperar senha" : "Bem-vindo de volta"}
-          </h2>
-          <p className="mt-1 text-sm text-foreground/60">
-            {recuperarSenha
-              ? "Vamos te ajudar a voltar a acessar sua conta."
-              : "Entre para acessar seu painel financeiro."}
-          </p>
+      {/* Formulário */}
+      <div className="relative flex w-full flex-col items-center justify-center overflow-hidden px-6 py-16 lg:w-[54%]">
+        <div className="pointer-events-none absolute inset-0 -z-10 lg:hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_15%,color-mix(in_srgb,var(--dourado)_16%,transparent),transparent_42%),radial-gradient(circle_at_85%_80%,color-mix(in_srgb,var(--dourado)_10%,transparent),transparent_40%),radial-gradient(circle_at_50%_100%,color-mix(in_srgb,var(--navy)_30%,transparent),transparent_60%)]" />
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage:
+                "linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
         </div>
 
-        <div className="rounded-2xl border border-foreground/10 bg-superficie/70 p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
-          {recuperarSenha ? (
-            <FormularioRecuperarSenha onVoltar={() => setRecuperarSenha(false)} />
-          ) : (
-            <>
-              <FormularioLogin onEsqueciSenha={() => setRecuperarSenha(true)} />
-              <p className="mt-6 text-center text-sm text-foreground/60">
-                Ainda não tem conta?{" "}
-                <Link href="/cadastro" className="font-medium text-dourado hover:underline">
-                  Cadastre-se
-                </Link>
-              </p>
-            </>
-          )}
-        </div>
+        <div className="w-full max-w-sm">
+          <div className="mb-8 text-center lg:text-left">
+            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-dourado-claro to-dourado text-navy shadow-lg shadow-dourado/20 lg:hidden">
+              <LayoutDashboard size={22} />
+            </span>
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-dourado lg:hidden">
+              Codigo do Investidor
+            </p>
+            <h2 className="mt-3 font-display text-2xl text-foreground">
+              {recuperarSenha ? "Recuperar senha" : "Bem-vindo de volta"}
+            </h2>
+            <p className="mt-1 text-sm text-foreground/60">
+              {recuperarSenha
+                ? "Vamos te ajudar a voltar a acessar sua conta."
+                : "Entre para acessar seu painel financeiro."}
+            </p>
+          </div>
 
-        <ul className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
-          {BENEFICIOS.map(({ icone: Icone, texto }) => (
-            <li
-              key={texto}
-              className="flex items-center gap-2 text-xs text-foreground/50 sm:flex-col sm:text-center"
-            >
-              <Icone size={14} className="shrink-0 text-dourado" />
-              <span>{texto}</span>
-            </li>
-          ))}
-        </ul>
+          <div className="rounded-2xl border border-foreground/10 bg-superficie/70 p-6 shadow-xl shadow-black/5 backdrop-blur-sm">
+            {recuperarSenha ? (
+              <FormularioRecuperarSenha onVoltar={() => setRecuperarSenha(false)} />
+            ) : (
+              <>
+                <FormularioLogin onEsqueciSenha={() => setRecuperarSenha(true)} />
+                <p className="mt-6 text-center text-sm text-foreground/60">
+                  Ainda não tem conta?{" "}
+                  <Link href="/cadastro" className="font-medium text-dourado hover:underline">
+                    Cadastre-se
+                  </Link>
+                </p>
+              </>
+            )}
+          </div>
+
+          <ul className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between lg:hidden">
+            {BENEFICIOS.map(({ icone: Icone, texto }) => (
+              <li
+                key={texto}
+                className="flex items-center gap-2 text-xs text-foreground/50 sm:flex-col sm:text-center"
+              >
+                <Icone size={14} className="shrink-0 text-dourado" />
+                <span>{texto}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </main>
   );

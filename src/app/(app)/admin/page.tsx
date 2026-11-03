@@ -16,8 +16,12 @@ import {
   getAcessosRecentes,
   getUsuariosAdmin,
   getModificacoesRecentes,
+  getAcessosPorDia,
+  getCadastrosPorDia,
 } from "@/lib/queries";
 import { getCommitsRecentes } from "@/lib/github";
+import { GraficoSerie } from "@/components/admin/grafico-serie";
+import { GraficoDistribuicao } from "@/components/admin/grafico-distribuicao";
 
 const formatarData = (data: Date | string | null) =>
   data
@@ -33,13 +37,24 @@ export default async function AdminPage() {
     redirect("/dashboard");
   }
 
-  const [stats, usuarios, acessos, modificacoes, commits] = await Promise.all([
-    getEstatisticasAdmin(),
-    getUsuariosAdmin(),
-    getAcessosRecentes(),
-    getModificacoesRecentes(),
-    getCommitsRecentes(),
-  ]);
+  const [stats, usuarios, acessos, modificacoes, commits, acessosPorDia, cadastrosPorDia] =
+    await Promise.all([
+      getEstatisticasAdmin(),
+      getUsuariosAdmin(),
+      getAcessosRecentes(),
+      getModificacoesRecentes(),
+      getCommitsRecentes(),
+      getAcessosPorDia(),
+      getCadastrosPorDia(),
+    ]);
+
+  const distribuicaoDados = [
+    { nome: "Ativos", total: stats.ativos },
+    { nome: "Lançamentos financeiros", total: stats.lancamentosFinanceiros },
+    { nome: "Lançamentos de ativos", total: stats.lancamentosAtivos },
+    { nome: "Metas", total: stats.metas },
+    { nome: "Proventos", total: stats.proventos },
+  ];
 
   const cartoes = [
     { titulo: "Usuários cadastrados", valor: stats.usuarios, icone: Users },
@@ -78,6 +93,27 @@ export default async function AdminPage() {
             </div>
           </div>
         ))}
+      </section>
+
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <section className="card p-6 lg:col-span-2">
+          <h2 className="mb-1 font-display text-lg text-foreground">Acessos por dia</h2>
+          <p className="mb-4 text-sm text-foreground/55">Logins registrados nos últimos 14 dias.</p>
+          <GraficoSerie dados={acessosPorDia} nome="Acessos" cor="#3b82f6" />
+        </section>
+
+        <section className="card p-6">
+          <h2 className="mb-1 font-display text-lg text-foreground">Distribuição de dados</h2>
+          <p className="mb-4 text-sm text-foreground/55">Registros por tipo na plataforma.</p>
+          <GraficoDistribuicao dados={distribuicaoDados} />
+        </section>
+      </div>
+
+      <section className="card p-6">
+        <h2 className="mb-1 font-display text-lg text-foreground">Novos cadastros por dia</h2>
+        <p className="mb-4 text-sm text-foreground/55">Contas criadas nos últimos 30 dias.</p>
+        <GraficoSerie dados={cadastrosPorDia} nome="Cadastros" cor="#d4af37" />
       </section>
 
       {/* Usuários */}

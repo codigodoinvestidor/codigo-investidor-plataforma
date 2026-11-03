@@ -36,9 +36,19 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  const isAdmin = session?.user?.app_metadata?.role === "admin";
+
   if (session && isAuthRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = isAdmin ? "/admin" : "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  // A conta admin é só para administração: sem acesso às telas financeiras pessoais.
+  const rotasFinanceiras = ["/dashboard", "/patrimonio", "/proventos", "/lancamentos-ativos", "/rentabilidade", "/metas"];
+  if (isAdmin && rotasFinanceiras.some((rota) => request.nextUrl.pathname.startsWith(rota))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
 

@@ -222,3 +222,33 @@ export const getModificacoesRecentes = (limite = 30) =>
     [`admin-modificacoes-${limite}`],
     { revalidate: 30, tags: ["admin-modificacoes"] }
   )();
+
+export type PontoSerie = { dia: string; total: number };
+
+export const getAcessosPorDia = (dias = 14) =>
+  unstable_cache(
+    () =>
+      prisma.$queryRaw<PontoSerie[]>`
+        select to_char(d.dia, 'DD/MM') as dia, count(a.id)::int as total
+        from generate_series(current_date - make_interval(days => ${dias - 1}), current_date, interval '1 day') as d(dia)
+        left join acessos_log a on a."criadoEm"::date = d.dia
+        group by d.dia
+        order by d.dia
+      `,
+    [`admin-acessos-dia-${dias}`],
+    { revalidate: 60, tags: ["admin-acessos-recentes"] }
+  )();
+
+export const getCadastrosPorDia = (dias = 30) =>
+  unstable_cache(
+    () =>
+      prisma.$queryRaw<PontoSerie[]>`
+        select to_char(d.dia, 'DD/MM') as dia, count(u.id)::int as total
+        from generate_series(current_date - make_interval(days => ${dias - 1}), current_date, interval '1 day') as d(dia)
+        left join auth.users u on u.created_at::date = d.dia
+        group by d.dia
+        order by d.dia
+      `,
+    [`admin-cadastros-dia-${dias}`],
+    { revalidate: 60, tags: ["admin-usuarios"] }
+  )();

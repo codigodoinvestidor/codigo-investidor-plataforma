@@ -15,9 +15,11 @@ const NAV = [
   { href: "/metas", rotulo: "Metas", icone: Target },
 ];
 
+const NAV_ADMIN = [{ href: "/admin", rotulo: "Admin", icone: ShieldCheck }];
+
 export function AppHeader({ nome, isAdmin }: { nome?: string | null; isAdmin?: boolean }) {
   const pathname = usePathname();
-  const nav = isAdmin ? [...NAV, { href: "/admin", rotulo: "Admin", icone: ShieldCheck }] : NAV;
+  const nav = isAdmin ? NAV_ADMIN : NAV;
 
   return (
     <header className="sticky top-0 z-10 border-b border-borda bg-background/80 backdrop-blur-md">
@@ -31,7 +33,7 @@ export function AppHeader({ nome, isAdmin }: { nome?: string | null; isAdmin?: b
               Codigo do Investidor
             </p>
             <p className="text-xs leading-tight text-foreground/50">
-              {nome ? `Olá, ${nome}` : "Painel financeiro"}
+              {isAdmin ? "Painel administrativo" : nome ? `Olá, ${nome}` : "Painel financeiro"}
             </p>
           </div>
         </div>
